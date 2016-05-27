@@ -24,8 +24,12 @@ public class TimesheetRunner {
 		ctx.getBean(TimesheetRunner.class).run();
 	}
 	
+	@SuppressWarnings("unused")
 	public void run() {
-		LocalDate monthDate = LocalDate.of(2016, 2, 1);
+		LocalDate customMonthDate = LocalDate.of(2016, 4, 1);
+		LocalDate currentMonthDate = LocalDate.now().withDayOfMonth(1);
+		LocalDate monthDate = currentMonthDate;
+		
 		String filename = monthDate.format(DateTimeFormatter.ofPattern("yyyyMM"));
 		
 		File processDirectory = new File("/home/timesheet");
