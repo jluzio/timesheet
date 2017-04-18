@@ -26,8 +26,9 @@ public class TimesheetRunner {
 	
 	@SuppressWarnings("unused")
 	public void run() {
-		LocalDate customMonthDate = LocalDate.of(2016, 4, 1);
+		LocalDate customMonthDate = LocalDate.of(2017, 1, 1);
 		LocalDate currentMonthDate = LocalDate.now().withDayOfMonth(1);
+//		LocalDate monthDate = customMonthDate;
 		LocalDate monthDate = currentMonthDate;
 		
 		String filename = monthDate.format(DateTimeFormatter.ofPattern("yyyyMM"));
@@ -45,7 +46,7 @@ public class TimesheetRunner {
 		ProcessConfig config = new ProcessConfig();
 		config.setInputs(inputFiles);
 		config.setInputEncoding("UTF-16LE");
-		config.setCsvOutput(new File(processDirectory, String.format(outputFormat, filename, "csv")));
+//		config.setCsvOutput(new File(processDirectory, String.format(outputFormat, filename, "csv")));
 		config.setExcelOutput(new File(processDirectory, String.format(outputFormat, filename, "xls")));
 		config.setMonth(Date.from(monthDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
 		
