@@ -6,14 +6,16 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Properties;
 import java.util.Scanner;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.example.timesheet.ProcessingException;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 
 /**
@@ -21,8 +23,13 @@ import com.google.common.base.Splitter;
  */
 @Named
 public class MovementsReader {
-
-	private static final String SERVICE_EXIT_TEXT = "Saída em Serviço";
+	private String serviceExitText;
+	
+	@Inject
+	public MovementsReader(@Named("properties") Properties properties) {
+		super();
+		this.serviceExitText = properties.getProperty("timesheet.input.serviceExitText");
+	}
 
 	public List<Movement> read(Reader reader) throws ProcessingException {
 		int lineIndex = -1;
@@ -32,7 +39,7 @@ public class MovementsReader {
 
 			DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			DateFormat datetimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-			Splitter splitter = Splitter.on(CharMatcher.JAVA_ISO_CONTROL);
+			Splitter splitter = Splitter.on(CharMatcher.javaIsoControl());
 
 			try (Scanner scanner = new Scanner(reader)) {
 				while (scanner.hasNextLine()) {
@@ -59,7 +66,7 @@ public class MovementsReader {
 						fileEntry.setType(MovementType.ENTER);
 						break;
 					case "S":
-						if (Objects.equals(SERVICE_EXIT_TEXT, descString)) {
+						if (Objects.equal(descString, serviceExitText)) {
 							fileEntry.setType(MovementType.SERVICE_EXIT);
 						} else if (descString!=null && descString.length() > 0) {
 							fileEntry.setType(MovementType.SERVICE_EXIT);
