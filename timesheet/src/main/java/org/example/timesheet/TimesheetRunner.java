@@ -26,7 +26,7 @@ public class TimesheetRunner {
 	
 	@SuppressWarnings("unused")
 	public void run() {
-		LocalDate customMonthDate = LocalDate.of(2017, 1, 1);
+		LocalDate customMonthDate = LocalDate.of(2017, 6, 1);
 		LocalDate currentMonthDate = LocalDate.now().withDayOfMonth(1);
 //		LocalDate monthDate = customMonthDate;
 		LocalDate monthDate = currentMonthDate;
