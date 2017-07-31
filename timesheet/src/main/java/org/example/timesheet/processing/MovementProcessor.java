@@ -70,8 +70,13 @@ public class MovementProcessor {
 				long workInMinutes = TimeUnit.MILLISECONDS.toMinutes(dayInfo.getExitDate().getTime() - dayInfo.getStartDate().getTime()) - dayInfo.getBreakInMinutes();
 				dayInfo.setWorkInMinutes(workInMinutes);
 			}
-			else if (movement.getType() == MovementType.HOLLIDAY) {
-				// ignore
+			else if (movement.getType() == MovementType.HOLLIDAY || movement.getType() == MovementType.VACATION) {
+				dayInfo.setDayOff(true);
+				dayInfo.setWorkInMinutes(0);
+				dayInfo.setBreakInMinutes(0);
+				dayInfo.setRemarks(movement.getType().name());
+				dayInfo.setStartDate(movement.getDate());
+				dayInfo.setExitDate(movement.getDate());
 			}
 			
 			if (i == movements.size() - 1) {

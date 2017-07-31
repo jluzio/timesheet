@@ -17,6 +17,7 @@ public class DayInfo {
 	private long workInMinutes;
 	private long breakInMinutes;
 	private String remarks;
+	private boolean dayOff;
 	
 	public String getMovementsInfo() {
 		Joiner joiner = Joiner.on('|');
@@ -72,10 +73,25 @@ public class DayInfo {
 		this.remarks = remarks;
 	}
 
+	public boolean isDayOff() {
+		return dayOff;
+	}
+
+	public void setDayOff(boolean dayOff) {
+		this.dayOff = dayOff;
+	}
+
 	@Override
 	public String toString() {
-		return "DayInfo [startDate=" + Formatters.format(startDate, Formatters.DATETIME_OUTPUT_FORMAT) + ", exitDate=" + Formatters.format(exitDate, Formatters.DATETIME_OUTPUT_FORMAT) + ", workInMinutes=" + workInMinutes
-				+ ", breakInMinutes=" + breakInMinutes + ", remarks=" + remarks + ", movements=" + movements + "]";
+		return "DayInfo ["
+				+ "startDate=" + Formatters.format(startDate, Formatters.DATETIME_OUTPUT_FORMAT) 
+				+ ", exitDate=" + Formatters.format(exitDate, Formatters.DATETIME_OUTPUT_FORMAT) 
+				+ ", workInMinutes=" + workInMinutes
+				+ ", breakInMinutes=" + breakInMinutes 
+				+ ", remarks=" + remarks 
+				+ ", dayOff=" + dayOff 
+				+ ", movements=" + movements 
+				+ "]";
 	}
 
 }

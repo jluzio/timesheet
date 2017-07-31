@@ -7,5 +7,7 @@ public enum MovementType {
     ENTER,
     EXIT,
     SERVICE_EXIT,
-    HOLLIDAY;
+    HOLLIDAY,
+    VACATION,
+    SICK_DAY;
 }

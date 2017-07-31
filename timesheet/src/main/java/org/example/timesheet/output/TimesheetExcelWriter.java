@@ -93,13 +93,15 @@ public class TimesheetExcelWriter {
 		createCell(headerRow, SheetCfg.Columns.EXIT).setCellValue("Exit");
 		createCell(headerRow, SheetCfg.Columns.WORK_HOURS_FORMULA).setCellValue("Work (hf)");
 		
-		Predicate<Date> isWorkDay = d -> dateConverter.toLocalDateTime(d).getDayOfWeek().compareTo(DayOfWeek.SATURDAY) < 0;
+		Predicate<DayInfo> isWeekendDay = dayInfo -> dateConverter.toLocalDateTime(dayInfo.getStartDate()).getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
+		Predicate<DayInfo> isDayOff = dayInfo -> dayInfo.isDayOff();
+		Predicate<DayInfo> isWorkDay = dayInfo -> isWeekendDay.negate().and(isDayOff.negate()).test(dayInfo);
 		
 		for (int i = 0; i < dayInfos.size(); i++) {
 			DayInfo dayInfo = dayInfos.get(i);
 			Row row = sheet.createRow(i + 1);
 			
-			boolean isWeekend = !isWorkDay.apply(dayInfo.getStartDate());
+			boolean isWeekend = isWeekendDay.test(dayInfo);
 			CellStyle currentNormalCellStyle = isWeekend ? weekendNormalCellStyle : normalCellStyle;
 			CellStyle currentDateCellStyle = isWeekend ? weekendDateCellStyle : dateCellStyle;
 			CellStyle currentTimeCellStyle = isWeekend ? weekendTimeCellStyle: timeCellStyle;
@@ -126,7 +128,7 @@ public class TimesheetExcelWriter {
 		int footerStartRowIndex = dayInfos.size() + 1 + 2;
 		int workPerHourColIndex = SheetCfg.Columns.WORK_HOURS;
 		float sumWorkInHours = 1f * dayInfos.stream().mapToLong(DayInfo::getWorkInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
-		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.apply(dayInfo.getStartDate()) ? 1 : 0));;
+		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.apply(dayInfo) ? 1 : 0));;
 		float workHoursInMonth = workDaysInMonth * 8;
 		float missingWorkHours = workHoursInMonth - sumWorkInHours;
 		
