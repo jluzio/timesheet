@@ -13,6 +13,7 @@ public class Movement {
 	private Date date;
 	private Date datetime;
 	private MovementType type;
+	private MovementTypeCode typeCode;
 	private String remarks;
 
 	public Date getDate() {
@@ -47,16 +48,30 @@ public class Movement {
 		this.remarks = remarks;
 	}
 	
+	public MovementTypeCode getTypeCode() {
+		return typeCode;
+	}
+
+	public void setTypeCode(MovementTypeCode typeCode) {
+		this.typeCode = typeCode;
+	}
+
 	public String getInfo() {
 		return MoreObjects.toStringHelper(type.name())
 					.add("t", Formatters.format(datetime, Formatters.TIME_OUTPUT_FORMAT))
 					.add("rem", remarks)
 					.toString();
 	}
-
+	
 	@Override
 	public String toString() {
-		return "Movement [date=" + Formatters.format(date, Formatters.DATE_OUTPUT_FORMAT) + ", datetime=" + Formatters.format(datetime, Formatters.DATETIME_OUTPUT_FORMAT) + ", type=" + type + ", remarks=" + remarks + "]";
+		return "Movement ["
+				+ "date=" + Formatters.format(date, Formatters.DATE_OUTPUT_FORMAT) 
+				+ ", datetime=" + Formatters.format(datetime, Formatters.DATETIME_OUTPUT_FORMAT) 
+				+ ", type=" + type 
+				+ ", typeCode=" + typeCode 
+				+ ", remarks=" + remarks 
+				+ "]";
 	}
 
 }

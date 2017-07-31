@@ -3,9 +3,8 @@ package org.example.timesheet.input;
 /**
  * Created by jluzio on 24/02/2015.
  */
-public enum MovementType {
+public enum MovementTypeCode {
     ENTER,
     EXIT,
-    SERVICE_EXIT,
-    HOLLIDAY;
+    CUSTOM;
 }

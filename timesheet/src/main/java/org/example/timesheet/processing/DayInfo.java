@@ -78,5 +78,4 @@ public class DayInfo {
 				+ ", breakInMinutes=" + breakInMinutes + ", remarks=" + remarks + ", movements=" + movements + "]";
 	}
 
-
 }

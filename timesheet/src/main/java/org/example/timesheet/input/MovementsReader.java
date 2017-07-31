@@ -64,8 +64,10 @@ public class MovementsReader {
 					switch (entryTypeString) {
 					case "E":
 						fileEntry.setType(MovementType.ENTER);
+						fileEntry.setTypeCode(MovementTypeCode.ENTER);
 						break;
 					case "S":
+						fileEntry.setTypeCode(MovementTypeCode.EXIT);
 						if (Objects.equal(descString, serviceExitText)) {
 							fileEntry.setType(MovementType.SERVICE_EXIT);
 						} else if (descString!=null && descString.length() > 0) {
@@ -74,6 +76,10 @@ public class MovementsReader {
 						} else {
 							fileEntry.setType(MovementType.EXIT);
 						}
+						break;
+					case "C":
+						fileEntry.setTypeCode(MovementTypeCode.CUSTOM);
+						fileEntry.setType(MovementType.valueOf(descString));
 						break;
 	
 					default:

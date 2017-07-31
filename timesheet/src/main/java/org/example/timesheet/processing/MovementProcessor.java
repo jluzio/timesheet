@@ -70,6 +70,9 @@ public class MovementProcessor {
 				long workInMinutes = TimeUnit.MILLISECONDS.toMinutes(dayInfo.getExitDate().getTime() - dayInfo.getStartDate().getTime()) - dayInfo.getBreakInMinutes();
 				dayInfo.setWorkInMinutes(workInMinutes);
 			}
+			else if (movement.getType() == MovementType.HOLLIDAY) {
+				// ignore
+			}
 			
 			if (i == movements.size() - 1) {
 				dayInfos.add(dayInfo);
