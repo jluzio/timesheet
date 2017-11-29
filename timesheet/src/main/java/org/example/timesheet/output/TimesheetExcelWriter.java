@@ -25,11 +25,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
+import org.example.timesheet.TimesheetConstants;
 import org.example.timesheet.processing.DayInfo;
 import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
+import com.google.common.base.Strings;
 
 @Named
 public class TimesheetExcelWriter {
@@ -127,13 +129,19 @@ public class TimesheetExcelWriter {
 		
 		int footerStartRowIndex = dayInfos.size() + 1 + 2;
 		int workPerHourColIndex = SheetCfg.Columns.WORK_HOURS;
+		int breakPerHourColIndex = SheetCfg.Columns.BREAK;
 		float sumWorkInHours = 1f * dayInfos.stream().mapToLong(DayInfo::getWorkInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
-		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.apply(dayInfo) ? 1 : 0));;
-		float workHoursInMonth = workDaysInMonth * 8;
+		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.apply(dayInfo) ? 1 : 0));
+		float workHoursInMonth = workDaysInMonth * TimesheetConstants.WORK_TIME_HOURS;
 		float missingWorkHours = workHoursInMonth - sumWorkInHours;
+		float expectedbreakHoursInMonth = workDaysInMonth * 1;
+		float totalBreakHoursInMonth = 1f * dayInfos.stream().mapToLong(DayInfo::getBreakInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
+		float missingBreakHoursInMonth = expectedbreakHoursInMonth - totalBreakHoursInMonth;
 		
 		String firstWorkHoursCellRef = getCellRef(sheet.getRow(1 + 0).getCell(workPerHourColIndex));
 		String lastWorkHoursCellRef = getCellRef(sheet.getRow(1 + dayInfos.size() - 1).getCell(workPerHourColIndex));
+		String firstBreakHoursCellRef = getCellRef(sheet.getRow(1 + 0).getCell(breakPerHourColIndex));
+		String lastBreakHoursCellRef = getCellRef(sheet.getRow(1 + dayInfos.size() - 1).getCell(breakPerHourColIndex));
 		
 		Row footerRow1 = sheet.createRow(footerStartRowIndex + 0);
 		createCell(footerRow1, workPerHourColIndex-1).setCellValue("Sum");
@@ -156,7 +164,7 @@ public class TimesheetExcelWriter {
 		Row footerRow4 = sheet.createRow(footerStartRowIndex + 3);
 		createCell(footerRow4, workPerHourColIndex-1).setCellValue("WorkM");
 		Cell workInMonthByFormulaCell = createCell(footerRow4, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
-		workInMonthByFormulaCell.setCellFormula("8 * " + workDaysInMonthCellRef);
+		workInMonthByFormulaCell.setCellFormula(String.format("%s*%s", TimesheetConstants.WORK_TIME_HOURS, workDaysInMonthCellRef));
 		String workInMonthByFormulaCellRef = getCellRef(workInMonthByFormulaCell);
 		
 		Row footerRow5 = sheet.createRow(footerStartRowIndex + 4);
@@ -165,8 +173,29 @@ public class TimesheetExcelWriter {
 
 		Row footerRow6 = sheet.createRow(footerStartRowIndex + 5);
 		createCell(footerRow6, workPerHourColIndex-1).setCellValue("ToWork(f)");
-		createCell(footerRow6, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA).setCellFormula(String.format("%s-%s", workInMonthByFormulaCellRef, sumWorkInHoursByFormulaCell));
+		createCell(footerRow6, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA)
+			.setCellFormula(String.format("%s-%s", workInMonthByFormulaCellRef, sumWorkInHoursByFormulaCell));
 
+		Row footerRow7 = sheet.createRow(footerStartRowIndex + 6);
+		createCell(footerRow7, workPerHourColIndex-1).setCellValue(Strings.repeat("-", 8));
+		
+		Row footerRow8 = sheet.createRow(footerStartRowIndex + 7);
+		createCell(footerRow8, workPerHourColIndex-1).setCellValue("BreakExpected");
+		Cell breakExpectedCell = createCell(footerRow8, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
+		breakExpectedCell.setCellFormula(String.format("%s*%s", TimesheetConstants.BREAK_TIME_HOURS, workDaysInMonthCellRef));
+		String breakExpectedCellRef = getCellRef(breakExpectedCell);
+
+		Row footerRow9 = sheet.createRow(footerStartRowIndex + 8);
+		createCell(footerRow9, workPerHourColIndex-1).setCellValue("TotalBreak(f)");
+		Cell totalBreakCell = createCell(footerRow9, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
+		totalBreakCell.setCellFormula(String.format("SUM(%s:%s)/60", firstBreakHoursCellRef, lastBreakHoursCellRef));
+		String totalBreakCellRef = getCellRef(totalBreakCell);
+
+		Row footerRow10 = sheet.createRow(footerStartRowIndex + 9);
+		createCell(footerRow10, workPerHourColIndex-1).setCellValue("BreakMissing(f)");
+		createCell(footerRow10, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA)
+			.setCellFormula(String.format("%s-%s", breakExpectedCellRef, totalBreakCellRef));
+		
 		workbook.write(outputStream);
 		workbook.close();
 	}

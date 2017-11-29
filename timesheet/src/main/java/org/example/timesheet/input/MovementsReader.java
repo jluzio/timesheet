@@ -37,8 +37,8 @@ public class MovementsReader {
 		try {
 			List<Movement> entries = new ArrayList<>();
 
-			DateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-			DateFormat datetimeFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+			DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+			DateFormat datetimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			Splitter splitter = Splitter.on(CharMatcher.javaIsoControl());
 
 			try (Scanner scanner = new Scanner(reader)) {
