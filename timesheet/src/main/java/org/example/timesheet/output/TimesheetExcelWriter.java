@@ -143,58 +143,79 @@ public class TimesheetExcelWriter {
 		String firstBreakHoursCellRef = getCellRef(sheet.getRow(1 + 0).getCell(breakPerHourColIndex));
 		String lastBreakHoursCellRef = getCellRef(sheet.getRow(1 + dayInfos.size() - 1).getCell(breakPerHourColIndex));
 		
-		Row footerRow1 = sheet.createRow(footerStartRowIndex + 0);
-		createCell(footerRow1, workPerHourColIndex-1).setCellValue("Sum");
-		Cell sumWorkInHoursCell = createCell(footerRow1, workPerHourColIndex, floatNumberCellStyle);
-		sumWorkInHoursCell.setCellValue(sumWorkInHours);
-		String sumWorkInHoursCellRef = getCellRef(sumWorkInHoursCell);
-
-		Row footerRow2 = sheet.createRow(footerStartRowIndex + 1);
-		createCell(footerRow2, workPerHourColIndex-1).setCellValue("Sum(f)");
-		Cell sumWorkInHoursByFormulaCell = createCell(footerRow2, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
-		sumWorkInHoursByFormulaCell.setCellFormula(String.format("SUM(%s:%s)", firstWorkHoursCellRef, lastWorkHoursCellRef));
-		String sumWorkInHoursByFormulaCellRef = getCellRef(sumWorkInHoursByFormulaCell);
-
-		Row footerRow3 = sheet.createRow(footerStartRowIndex + 2);
-		createCell(footerRow3, workPerHourColIndex-1).setCellValue("DaysM");
-		Cell workDaysInMonthCell = createCell(footerRow3, workPerHourColIndex, floatNumberCellStyle);
+		int currentFooterRow = footerStartRowIndex;
+		
+		Function<Integer,Cell> createSeparator = (rowNumber) -> { 
+			Row row = sheet.createRow(rowNumber);
+			Cell cell = createCell(row, workPerHourColIndex-1);
+			cell.setCellValue(Strings.repeat("-", 8));
+			return cell;
+		};
+		
+		Row footerRow1 = sheet.createRow(currentFooterRow);
+		createCell(footerRow1, workPerHourColIndex-1).setCellValue("DaysM");
+		Cell workDaysInMonthCell = createCell(footerRow1, workPerHourColIndex, floatNumberCellStyle);
 		workDaysInMonthCell.setCellValue(workDaysInMonth);
 		String workDaysInMonthCellRef = getCellRef(workDaysInMonthCell);
-		
-		Row footerRow4 = sheet.createRow(footerStartRowIndex + 3);
-		createCell(footerRow4, workPerHourColIndex-1).setCellValue("WorkM");
-		Cell workInMonthByFormulaCell = createCell(footerRow4, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
+		currentFooterRow++;
+
+		Row footerRow2 = sheet.createRow(currentFooterRow);
+		createCell(footerRow2, workPerHourColIndex-1).setCellValue("WorkM");
+		Cell workInMonthByFormulaCell = createCell(footerRow2, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
 		workInMonthByFormulaCell.setCellFormula(String.format("%s*%s", TimesheetConstants.WORK_TIME_HOURS, workDaysInMonthCellRef));
 		String workInMonthByFormulaCellRef = getCellRef(workInMonthByFormulaCell);
+		currentFooterRow++;
 		
-		Row footerRow5 = sheet.createRow(footerStartRowIndex + 4);
+		createSeparator.apply(currentFooterRow);
+		currentFooterRow++;
+
+		Row footerRow3 = sheet.createRow(currentFooterRow);
+		createCell(footerRow3, workPerHourColIndex-1).setCellValue("Sum");
+		Cell sumWorkInHoursCell = createCell(footerRow3, workPerHourColIndex, floatNumberCellStyle);
+		sumWorkInHoursCell.setCellValue(sumWorkInHours);
+		String sumWorkInHoursCellRef = getCellRef(sumWorkInHoursCell);
+		currentFooterRow++;
+
+		Row footerRow4 = sheet.createRow(currentFooterRow);
+		createCell(footerRow4, workPerHourColIndex-1).setCellValue("Sum(f)");
+		Cell sumWorkInHoursByFormulaCell = createCell(footerRow4, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
+		sumWorkInHoursByFormulaCell.setCellFormula(String.format("SUM(%s:%s)", firstWorkHoursCellRef, lastWorkHoursCellRef));
+		String sumWorkInHoursByFormulaCellRef = getCellRef(sumWorkInHoursByFormulaCell);
+		currentFooterRow++;
+		
+		Row footerRow5 = sheet.createRow(currentFooterRow);
 		createCell(footerRow5, workPerHourColIndex-1).setCellValue("ToWork");
 		createCell(footerRow5, workPerHourColIndex, floatNumberCellStyle).setCellValue(missingWorkHours);
+		currentFooterRow++;
 
-		Row footerRow6 = sheet.createRow(footerStartRowIndex + 5);
+		Row footerRow6 = sheet.createRow(currentFooterRow);
 		createCell(footerRow6, workPerHourColIndex-1).setCellValue("ToWork(f)");
 		createCell(footerRow6, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA)
 			.setCellFormula(String.format("%s-%s", workInMonthByFormulaCellRef, sumWorkInHoursByFormulaCell));
-
-		Row footerRow7 = sheet.createRow(footerStartRowIndex + 6);
-		createCell(footerRow7, workPerHourColIndex-1).setCellValue(Strings.repeat("-", 8));
+		currentFooterRow++;
 		
-		Row footerRow8 = sheet.createRow(footerStartRowIndex + 7);
-		createCell(footerRow8, workPerHourColIndex-1).setCellValue("BreakExpected");
-		Cell breakExpectedCell = createCell(footerRow8, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
+		createSeparator.apply(currentFooterRow);
+		currentFooterRow++;
+		
+		Row footerRow7 = sheet.createRow(currentFooterRow);
+		createCell(footerRow7, workPerHourColIndex-1).setCellValue("BreakExpected");
+		Cell breakExpectedCell = createCell(footerRow7, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
 		breakExpectedCell.setCellFormula(String.format("%s*%s", TimesheetConstants.BREAK_TIME_HOURS, workDaysInMonthCellRef));
 		String breakExpectedCellRef = getCellRef(breakExpectedCell);
+		currentFooterRow++;
 
-		Row footerRow9 = sheet.createRow(footerStartRowIndex + 8);
-		createCell(footerRow9, workPerHourColIndex-1).setCellValue("TotalBreak(f)");
-		Cell totalBreakCell = createCell(footerRow9, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
+		Row footerRow8 = sheet.createRow(currentFooterRow);
+		createCell(footerRow8, workPerHourColIndex-1).setCellValue("TotalBreak(f)");
+		Cell totalBreakCell = createCell(footerRow8, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA);
 		totalBreakCell.setCellFormula(String.format("SUM(%s:%s)/60", firstBreakHoursCellRef, lastBreakHoursCellRef));
 		String totalBreakCellRef = getCellRef(totalBreakCell);
+		currentFooterRow++;
 
-		Row footerRow10 = sheet.createRow(footerStartRowIndex + 9);
-		createCell(footerRow10, workPerHourColIndex-1).setCellValue("BreakMissing(f)");
-		createCell(footerRow10, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA)
+		Row footerRow9 = sheet.createRow(currentFooterRow);
+		createCell(footerRow9, workPerHourColIndex-1).setCellValue("BreakMissing(f)");
+		createCell(footerRow9, workPerHourColIndex, floatNumberCellStyle, Cell.CELL_TYPE_FORMULA)
 			.setCellFormula(String.format("%s-%s", breakExpectedCellRef, totalBreakCellRef));
+		currentFooterRow++;
 		
 		workbook.write(outputStream);
 		workbook.close();
@@ -235,6 +256,10 @@ public class TimesheetExcelWriter {
 		return cell;
 	}
 	
+	private void createSeparatorCell(Row row, int column) {
+		createCell(row, column).setCellValue(Strings.repeat("-", 8));		
+	}
+	
 	private String getCellRef(Cell cell) {
 		return getCellValueFn(() -> Optional.ofNullable(cell), c -> new CellReference(c).formatAsString());
 	}
@@ -247,5 +272,5 @@ public class TimesheetExcelWriter {
 	private <T> T getCellValueFn(Supplier<Optional<Cell>> optCellFn, Function<Cell, T> cellValueFn) {
 		return optCellFn.get().map(cellValueFn).orElse(null);
 	}
-
+	
 }
