@@ -5,13 +5,13 @@ import java.util.Date;
 import java.util.List;
 
 public class ProcessConfig {
+	private Date month;
 	private List<File> inputs;
-	private String inputEncoding;
+	private InputConfig inputConfig;
 	private File csvOutput;
 	private File excelOutput;
 	private String outputEncoding = "UTF-8";
 	private boolean fillAllMonthDays = true;
-	private Date month;
 
 	public List<File> getInputs() {
 		return inputs;
@@ -19,14 +19,6 @@ public class ProcessConfig {
 
 	public void setInputs(List<File> inputs) {
 		this.inputs = inputs;
-	}
-
-	public String getInputEncoding() {
-		return inputEncoding;
-	}
-
-	public void setInputEncoding(String inputEncoding) {
-		this.inputEncoding = inputEncoding;
 	}
 
 	public File getCsvOutput() {
@@ -67,6 +59,14 @@ public class ProcessConfig {
 
 	public void setMonth(Date month) {
 		this.month = month;
+	}
+
+	public InputConfig getInputConfig() {
+		return inputConfig;
+	}
+
+	public void setInputConfig(InputConfig inputConfig) {
+		this.inputConfig = inputConfig;
 	}
 
 }

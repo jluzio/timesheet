@@ -37,7 +37,7 @@ import com.google.common.base.Predicate;
 @Named
 public class TimesheetProcessor {
 	private Logger log = LogManager.getLogger(getClass());
-	
+
 	@Inject
 	private MovementsReader movementsReader;
 	@Inject
@@ -59,10 +59,11 @@ public class TimesheetProcessor {
 				log.debug(dayInfo);
 			}
 			dayInfos = monthProcessor.process(dayInfos, config.getMonth(), config.isFillAllMonthDays());
-			
+
 			Charset outputCharset = Charset.forName(config.getOutputEncoding());
 			if (config.getCsvOutput() != null) {
-				try (Writer writer = new OutputStreamWriter(new FileOutputStream(config.getCsvOutput()), outputCharset)) {
+				try (Writer writer = new OutputStreamWriter(new FileOutputStream(config.getCsvOutput()),
+						outputCharset)) {
 					timesheetCSVWriter.write(dayInfos, writer);
 				}
 			}
@@ -77,14 +78,14 @@ public class TimesheetProcessor {
 	}
 
 	private List<Movement> readMovements(ProcessConfig config)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException 
-	{
+			throws UnsupportedEncodingException, FileNotFoundException, IOException {
 		List<Movement> movements = new ArrayList<>();
 		for (File input : config.getInputs()) {
-			Reader inputReader = new InputStreamReader(new FileInputStream(input), config.getInputEncoding());
-			List<Movement> currentMovements = movementsReader.read(inputReader);
+			Reader inputReader = new InputStreamReader(new FileInputStream(input), config.getInputConfig().getEncoding());
+			List<Movement> currentMovements = movementsReader.read(inputReader, config.getInputConfig());
 			for (Movement currentMovement : currentMovements) {
-				Movement existingMovement = movements.stream().filter( equalsPredicate(currentMovement) ).findFirst().orElse(null);
+				Movement existingMovement = movements.stream().filter(equalsPredicate(currentMovement)).findFirst()
+						.orElse(null);
 				if (existingMovement != null) {
 					log.debug("Merging movements {} and {} ", existingMovement, currentMovement);
 					existingMovement.setType(currentMovement.getType());
@@ -97,11 +98,10 @@ public class TimesheetProcessor {
 		}
 		return movements;
 	}
-	
+
 	private Predicate<Movement> equalsPredicate(Movement movement) {
-		return m -> 
-			Objects.equals(movement.getDatetime(), m.getDatetime())
-			&& Objects.equals(movement.getTypeCode(), m.getTypeCode());
+		return m -> Objects.equals(movement.getDatetime(), m.getDatetime())
+				&& Objects.equals(movement.getTypeCode(), m.getTypeCode());
 	}
 
 }

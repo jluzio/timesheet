@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<runnerConfig>
+    <inputPath>/home/timesheet</inputPath>
+    <outputEncoding>UTF-8</outputEncoding>
+    <outputPath>/home/timesheet</outputPath>
+    <outputTargets>EXCEL</outputTargets>
+    <fillAllMonthDays>true</fillAllMonthDays>
+</runnerConfig>
