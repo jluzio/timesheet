@@ -3,15 +3,30 @@ package org.example.timesheet.config;
 import java.time.LocalDate;
 
 public class Vacation {
-	private LocalDate startDate;
+	private LocalDate date;
 	private LocalDate endDate;
-
-	public LocalDate getStartDate() {
-		return startDate;
+	
+	public Vacation() {
+		super();
 	}
 
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
+	public Vacation(LocalDate date) {
+		super();
+		this.date = date;
+	}
+	
+	public Vacation(LocalDate date, LocalDate endDate) {
+		super();
+		this.date = date;
+		this.endDate = endDate;
+	}
+
+	public LocalDate getDate() {
+		return date;
+	}
+
+	public void setDate(LocalDate startDate) {
+		this.date = startDate;
 	}
 
 	public LocalDate getEndDate() {
@@ -24,7 +39,7 @@ public class Vacation {
 
 	@Override
 	public String toString() {
-		return "Vacation [startDate=" + startDate + ", endDate=" + endDate + "]";
+		return "Vacation [date=" + date + ", endDate=" + endDate + "]";
 	}
 
 }

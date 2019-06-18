@@ -1,9 +1,10 @@
 package org.example.timesheet.config;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Vacations {
-	private List<Vacation> vacations;
+	private List<Vacation> vacations = new ArrayList<Vacation>();
 
 	public List<Vacation> getVacations() {
 		return vacations;
