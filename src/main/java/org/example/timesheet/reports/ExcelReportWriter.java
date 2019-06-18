@@ -83,7 +83,7 @@ public class ExcelReportWriter {
 		if (!dayInfos.isEmpty()) {
 			DayInfo firstDayInfo = dayInfos.get(0);
 			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
-			sheetName = dateFormatter.format(firstDayInfo.getStartDate());
+			sheetName = dateFormatter.format(firstDayInfo.getStartDatetime());
 		}
 
 		Sheet sheet = workbook.createSheet(sheetName);
@@ -96,7 +96,7 @@ public class ExcelReportWriter {
 		createCell(headerRow, SheetCfg.Columns.EXIT).setCellValue("Exit");
 		createCell(headerRow, SheetCfg.Columns.WORK_HOURS_FORMULA).setCellValue("Work (hf)");
 		
-		Predicate<DayInfo> isWeekendDay = dayInfo -> dayInfo.getStartDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
+		Predicate<DayInfo> isWeekendDay = dayInfo -> dayInfo.getStartDatetime().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
 		Predicate<DayInfo> isDayOff = dayInfo -> dayInfo.isDayOff();
 		Predicate<DayInfo> isWorkDay = dayInfo -> isWeekendDay.negate().and(isDayOff.negate()).test(dayInfo);
 		Function<LocalDateTime, Date> toDate = dateTime -> dateTime != null ? dateConverter.fromLocalDateTime(dateTime) : null;
@@ -111,14 +111,14 @@ public class ExcelReportWriter {
 			CellStyle currentTimeCellStyle = isWeekend ? weekendTimeCellStyle: timeCellStyle;
 			CellStyle currentFloatNumberCellStyle = isWeekend ? weekendFloatNumberCellStyle : floatNumberCellStyle;
 			
-			Date date = dateConverter.fromLocalDateTime(dayInfo.getStartDate().toLocalDate().atStartOfDay());
+			Date date = dateConverter.fromLocalDateTime(dayInfo.getStartDatetime().toLocalDate().atStartOfDay());
 			createCell(row, SheetCfg.Columns.DATE, currentDateCellStyle).setCellValue(date);
 			createCell(row, SheetCfg.Columns.WORK_HOURS, currentFloatNumberCellStyle).setCellValue(1f * dayInfo.getWorkInMinutes() / TimeUnit.HOURS.toMinutes(1));
 			createCell(row, SheetCfg.Columns.BREAK, currentNormalCellStyle).setCellValue(dayInfo.getBreakInMinutes());
 			createCell(row, SheetCfg.Columns.REMARKS, currentNormalCellStyle).setCellValue(MoreObjects.firstNonNull(dayInfo.getRemarks(), ""));
-			createCell(row, SheetCfg.Columns.ENTER, currentTimeCellStyle).setCellValue(toDate.apply(dayInfo.getStartDate()));
+			createCell(row, SheetCfg.Columns.ENTER, currentTimeCellStyle).setCellValue(toDate.apply(dayInfo.getStartDatetime()));
 			Cell exitCell = createCell(row, SheetCfg.Columns.EXIT, currentTimeCellStyle);
-			Optional.ofNullable(dayInfo.getExitDate())
+			Optional.ofNullable(dayInfo.getExitDatetime())
 				.ifPresent(d -> exitCell.setCellValue(toDate.apply(d)));
 			
 			String enterCellRef = getCellRef(row.getCell(SheetCfg.Columns.ENTER, Row.CREATE_NULL_AS_BLANK));

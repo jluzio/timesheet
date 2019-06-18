@@ -12,8 +12,8 @@ import com.google.common.base.Joiner;
 
 public class DayInfo {
 	private List<Entry> entries = new ArrayList<>();
-	private LocalDateTime startDate;
-	private LocalDateTime exitDate;
+	private LocalDateTime startDatetime;
+	private LocalDateTime exitDatetime;
 	private long workInMinutes;
 	private long breakInMinutes;
 	private String remarks;
@@ -33,20 +33,20 @@ public class DayInfo {
 		this.entries = entries;
 	}
 
-	public LocalDateTime getStartDate() {
-		return startDate;
+	public LocalDateTime getStartDatetime() {
+		return startDatetime;
 	}
 
-	public void setStartDate(LocalDateTime startDate) {
-		this.startDate = startDate;
+	public void setStartDatetime(LocalDateTime startDate) {
+		this.startDatetime = startDate;
 	}
 
-	public LocalDateTime getExitDate() {
-		return exitDate;
+	public LocalDateTime getExitDatetime() {
+		return exitDatetime;
 	}
 
-	public void setExitDate(LocalDateTime exitDate) {
-		this.exitDate = exitDate;
+	public void setExitDatetime(LocalDateTime exitDate) {
+		this.exitDatetime = exitDate;
 	}
 
 	public long getWorkInMinutes() {
@@ -84,8 +84,8 @@ public class DayInfo {
 	@Override
 	public String toString() {
 		return "DayInfo ["
-				+ "startDate=" + Formatters.format(startDate, Formatters.DATETIME_OUTPUT_FORMAT) 
-				+ ", exitDate=" + Formatters.format(exitDate, Formatters.DATETIME_OUTPUT_FORMAT) 
+				+ "startDatetime=" + Formatters.format(startDatetime, Formatters.DATETIME_OUTPUT_FORMAT) 
+				+ ", exitDatetime=" + Formatters.format(exitDatetime, Formatters.DATETIME_OUTPUT_FORMAT) 
 				+ ", workInMinutes=" + workInMinutes
 				+ ", breakInMinutes=" + breakInMinutes 
 				+ ", remarks=" + remarks 

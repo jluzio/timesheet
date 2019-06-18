@@ -12,7 +12,7 @@ import javax.inject.Named;
 public class MonthProcessor {
 	
 	public List<DayInfo> process(List<DayInfo> dayInfos, LocalDate month, boolean fillAllDays) {
-		LocalDate dateInMonth = month != null ? month : dayInfos.get(0).getStartDate().toLocalDate();
+		LocalDate dateInMonth = month != null ? month : dayInfos.get(0).getStartDatetime().toLocalDate();
 		LocalDate firstDayOfMonth = dateInMonth.withDayOfMonth(1);
 		LocalDate lastDayOfMonth = dateInMonth.plusMonths(1).withDayOfMonth(1).plusDays(-1);
 
@@ -20,7 +20,7 @@ public class MonthProcessor {
 		for (LocalDate date = firstDayOfMonth; !date.isAfter(lastDayOfMonth); date = date.plusDays(1)) {
 			final LocalDate findDate = date;
 			Optional<DayInfo> dayInfoOptional = dayInfos.stream().filter(
-					(dayInfo) -> dayInfo.getStartDate().toLocalDate().equals(findDate)
+					(dayInfo) -> dayInfo.getStartDatetime().toLocalDate().equals(findDate)
 				).findFirst();
 			
 			if (dayInfoOptional.isPresent()) {
@@ -29,8 +29,8 @@ public class MonthProcessor {
 				LocalDateTime datetimeValue = date.atStartOfDay();
 				
 				DayInfo dayInfo = new DayInfo();
-				dayInfo.setStartDate(datetimeValue);
-				dayInfo.setExitDate(datetimeValue);
+				dayInfo.setStartDatetime(datetimeValue);
+				dayInfo.setExitDatetime(datetimeValue);
 				monthDayInfos.add(dayInfo);
 			}
 		}

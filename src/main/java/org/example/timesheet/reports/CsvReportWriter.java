@@ -29,9 +29,9 @@ public class CsvReportWriter {
 				)
 		);
 		for (DayInfo dayInfo : dayInfos) {
-			String date = Formatters.format(dayInfo.getStartDate(), Formatters.TIME_OUTPUT_FORMAT);
-			String startDate = Formatters.format(dayInfo.getExitDate(), Formatters.TIME_OUTPUT_FORMAT);
-			String exitDate = Formatters.format(dayInfo.getExitDate(), Formatters.TIME_OUTPUT_FORMAT);
+			String date = Formatters.format(dayInfo.getStartDatetime(), Formatters.TIME_OUTPUT_FORMAT);
+			String startDate = Formatters.format(dayInfo.getExitDatetime(), Formatters.TIME_OUTPUT_FORMAT);
+			String exitDate = Formatters.format(dayInfo.getExitDatetime(), Formatters.TIME_OUTPUT_FORMAT);
 			writer.write(
 					String.format(lineFormat, 
 							date, 

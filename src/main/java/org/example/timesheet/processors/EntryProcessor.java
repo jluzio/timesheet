@@ -46,8 +46,8 @@ public class EntryProcessor {
 			dayInfo.getEntries().add(entry);
 			
 			if (entry.getType() == EntryType.ENTER) {
-				if (dayInfo.getStartDate() == null) {
-					dayInfo.setStartDate(entry.getDatetime());
+				if (dayInfo.getStartDatetime() == null) {
+					dayInfo.setStartDatetime(entry.getDatetime());
 				}
 				else if (lastEntry != null) {
 					if (lastEntry.getType() == EntryType.SERVICE_EXIT) {
@@ -67,8 +67,8 @@ public class EntryProcessor {
 				}
 			}
 			else if (entry.getType() == EntryType.EXIT) {
-				dayInfo.setExitDate(entry.getDatetime());
-				long workInMinutes = ChronoUnit.MINUTES.between(dayInfo.getStartDate(), dayInfo.getExitDate()) - dayInfo.getBreakInMinutes();
+				dayInfo.setExitDatetime(entry.getDatetime());
+				long workInMinutes = ChronoUnit.MINUTES.between(dayInfo.getStartDatetime(), dayInfo.getExitDatetime()) - dayInfo.getBreakInMinutes();
 				dayInfo.setWorkInMinutes(workInMinutes);
 			}
 			else if (entry.getType() == EntryType.HOLLIDAY || entry.getType() == EntryType.VACATION) {
@@ -78,8 +78,8 @@ public class EntryProcessor {
 				dayInfo.setWorkInMinutes(0);
 				dayInfo.setBreakInMinutes(0);
 				dayInfo.setRemarks(entry.getType().name());
-				dayInfo.setStartDate(startOfDay);
-				dayInfo.setExitDate(startOfDay);
+				dayInfo.setStartDatetime(startOfDay);
+				dayInfo.setExitDatetime(startOfDay);
 			}
 			
 			if (i == entries.size() - 1) {
