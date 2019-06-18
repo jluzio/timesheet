@@ -38,9 +38,9 @@ public class TimesheetProcessor {
 	@Inject
 	private EntryReader entryReader;
 	@Inject
-	private EntryProcessor entryProcessor;
+	private EntryDataProcessor entryDataProcessor;
 	@Inject
-	private MonthProcessor monthProcessor;
+	private MonthDataProcessor monthDataProcessor;
 	@Inject
 	private CsvReportWriter csvReportWriter;
 	@Inject
@@ -53,12 +53,12 @@ public class TimesheetProcessor {
 			List<Entry> entries = readEntries(config);
 			log.debug(entries);
 
-			List<DayInfo> dayInfos = entryProcessor.process(entries);
+			List<DayInfo> dayInfos = entryDataProcessor.process(entries);
 			for (DayInfo dayInfo : dayInfos) {
 				log.debug(dayInfo);
 			}
 			LocalDate month = config.getMonth() != null ? dateConverter.toLocalDateTime(config.getMonth()).toLocalDate() : null;
-			dayInfos = monthProcessor.process(dayInfos, month, config.isFillAllMonthDays());
+			dayInfos = monthDataProcessor.process(dayInfos, month, config.isFillAllMonthDays());
 
 			Charset outputCharset = Charset.forName(config.getOutputEncoding());
 			if (config.getCsvOutput() != null) {

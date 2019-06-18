@@ -9,7 +9,7 @@ import java.util.Optional;
 import javax.inject.Named;
 
 @Named
-public class MonthProcessor {
+public class MonthDataProcessor {
 	
 	public List<DayInfo> process(List<DayInfo> dayInfos, LocalDate month, boolean fillAllDays) {
 		LocalDate dateInMonth = month != null ? month : dayInfos.get(0).getStartDatetime().toLocalDate();

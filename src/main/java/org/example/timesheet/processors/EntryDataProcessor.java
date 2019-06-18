@@ -16,7 +16,7 @@ import org.example.timesheet.entries.EntryType;
 import com.google.common.base.Joiner;
 
 @Named
-public class EntryProcessor {
+public class EntryDataProcessor {
 	private Logger log = LogManager.getLogger(getClass());
 	
 	public List<DayInfo> process(List<Entry> entries) {
