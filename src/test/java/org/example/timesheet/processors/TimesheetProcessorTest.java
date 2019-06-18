@@ -2,10 +2,8 @@ package org.example.timesheet.processors;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -14,7 +12,6 @@ import javax.xml.bind.JAXBContext;
 import org.example.timesheet.AbstractTest;
 import org.example.timesheet.config.InputConfig;
 import org.example.timesheet.config.ProcessConfig;
-import org.example.timesheet.processors.TimesheetProcessor;
 import org.junit.Test;
 
 public class TimesheetProcessorTest extends AbstractTest {
@@ -49,7 +46,7 @@ public class TimesheetProcessorTest extends AbstractTest {
 		processConfig.setInputConfig(inputConfig);
 		processConfig.setCsvOutput(new File(outputDirectory, String.format(outputFormat, filename, "csv")));
 		processConfig.setExcelOutput(new File(outputDirectory, String.format(outputFormat, filename, "xls")));
-		processConfig.setMonth(Date.from(monthDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+		processConfig.setMonth(monthDate);
 		
 		processor.process(processConfig);
 	}

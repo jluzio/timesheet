@@ -2,10 +2,8 @@ package org.example.timesheet.processors;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -19,7 +17,6 @@ import org.example.timesheet.ProcessingException;
 import org.example.timesheet.config.InputConfig;
 import org.example.timesheet.config.ProcessConfig;
 import org.example.timesheet.config.RunnerConfig;
-import org.example.timesheet.util.DateConverter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 
@@ -27,8 +24,6 @@ import org.springframework.context.ApplicationContext;
 public class TimesheetRunner {
 	@Inject 
 	private TimesheetProcessor processor;
-	@Inject 
-	private DateConverter dateConverter;
 	
 	public static void main(String[] args) throws Exception {
 		ApplicationContext ctx = SpringApplication.run(Application.class, args);
@@ -42,9 +37,7 @@ public class TimesheetRunner {
 		try {
 			LocalDate monthDate = null;
 			if (runnerConfig.getTargetDate() != null) {
-				monthDate = dateConverter.toLocalDateTime(runnerConfig.getTargetDate())
-						.toLocalDate()
-						.withDayOfMonth(1);
+				monthDate = runnerConfig.getTargetDate().withDayOfMonth(1);
 			} else {
 				monthDate = LocalDate.now().withDayOfMonth(1);
 			}
@@ -66,7 +59,7 @@ public class TimesheetRunner {
 			processConfig.setExcelOutput(new File(runnerConfig.getOutputPath(), String.format(outputFormat, filename, "xls")));
 			processConfig.setOutputEncoding(runnerConfig.getOutputEncoding());
 			processConfig.setFillAllMonthDays(runnerConfig.isFillAllMonthDays());
-			processConfig.setMonth(Date.from(monthDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+			processConfig.setMonth(monthDate);
 			
 			processor.process(processConfig);
 		} catch (ProcessingException e) {

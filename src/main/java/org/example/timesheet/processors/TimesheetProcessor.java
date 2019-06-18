@@ -28,7 +28,6 @@ import org.example.timesheet.entries.Entry;
 import org.example.timesheet.entries.EntryReader;
 import org.example.timesheet.reports.CsvReportWriter;
 import org.example.timesheet.reports.ExcelReportWriter;
-import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.Predicate;
 
@@ -45,8 +44,6 @@ public class TimesheetProcessor {
 	private CsvReportWriter csvReportWriter;
 	@Inject
 	private ExcelReportWriter excelReportWriter;
-	@Inject
-	private DateConverter dateConverter;
 
 	public void process(ProcessConfig config) throws ProcessingException {
 		try {
@@ -57,7 +54,7 @@ public class TimesheetProcessor {
 			for (DayWorkData dayWorkData : dayWorkDatas) {
 				log.debug(dayWorkData);
 			}
-			LocalDate month = config.getMonth() != null ? dateConverter.toLocalDateTime(config.getMonth()).toLocalDate() : null;
+			LocalDate month = config.getMonth() != null ? config.getMonth() : null;
 			dayWorkDatas = monthDataProcessor.process(dayWorkDatas, month, config.isFillAllMonthDays());
 
 			Charset outputCharset = Charset.forName(config.getOutputEncoding());

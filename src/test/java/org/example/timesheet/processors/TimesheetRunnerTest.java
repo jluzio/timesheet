@@ -2,7 +2,6 @@ package org.example.timesheet.processors;
 
 import java.io.File;
 import java.time.LocalDate;
-import java.util.Date;
 
 import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
@@ -10,8 +9,6 @@ import javax.xml.bind.JAXBContext;
 import org.example.timesheet.AbstractTest;
 import org.example.timesheet.config.InputConfig;
 import org.example.timesheet.config.RunnerConfig;
-import org.example.timesheet.processors.TimesheetRunner;
-import org.example.timesheet.util.DateConverter;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -19,8 +16,6 @@ import com.google.common.collect.Lists;
 public class TimesheetRunnerTest extends AbstractTest {
 	@Inject
 	private TimesheetRunner runner;
-	@Inject
-	private DateConverter dateConverter;
 	
 	@Test
 	public void testCurrentFormat() throws Exception {
@@ -28,8 +23,7 @@ public class TimesheetRunnerTest extends AbstractTest {
 		File inputFile = new File(classLoader.getResource("201706.xls").getPath());
 		String inputPath = inputFile.getParentFile().getAbsolutePath();
 		String outputPath = inputPath;
-		LocalDate monthLocalDate = LocalDate.of(2017, 06, 1);
-		Date monthDate = dateConverter.fromLocalDateTime(monthLocalDate.atStartOfDay());
+		LocalDate monthDate = LocalDate.of(2017, 06, 1);
 		
 		File inputConfigFile = new File(classLoader.getResource("inputConfig-default.xml").getPath());
 		InputConfig inputConfig = (InputConfig) JAXBContext.newInstance(InputConfig.class)
@@ -54,8 +48,7 @@ public class TimesheetRunnerTest extends AbstractTest {
 		File inputFile = new File(classLoader.getResource("format_201706/201706.xls").getPath());
 		String inputPath = inputFile.getParentFile().getAbsolutePath();
 		String outputPath = inputPath;
-		LocalDate monthLocalDate = LocalDate.of(2017, 6, 1);
-		Date monthDate = dateConverter.fromLocalDateTime(monthLocalDate.atStartOfDay());
+		LocalDate monthDate = LocalDate.of(2017, 6, 1);
 		
 		File inputConfigFile = new File(classLoader.getResource("inputConfig-oldFormat.xml").getPath());
 		InputConfig inputConfig = (InputConfig) JAXBContext.newInstance(InputConfig.class)

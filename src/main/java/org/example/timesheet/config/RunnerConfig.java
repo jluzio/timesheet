@@ -1,6 +1,6 @@
 package org.example.timesheet.config;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -10,8 +10,8 @@ public class RunnerConfig {
 	public static enum OutputTarget {
 		EXCEL, CSV
 	}
-
-	private Date targetDate;
+	
+	private LocalDate targetDate;
 	private String inputPath;
 	private InputConfig inputConfig;
 	private String outputPath;
@@ -23,11 +23,11 @@ public class RunnerConfig {
 		super();
 	}
 
-	public Date getTargetDate() {
+	public LocalDate getTargetDate() {
 		return targetDate;
 	}
 
-	public void setTargetDate(Date targetDate) {
+	public void setTargetDate(LocalDate targetDate) {
 		this.targetDate = targetDate;
 	}
 

@@ -1,20 +1,19 @@
 package org.example.timesheet.config;
 
 import java.io.File;
-import java.util.Date;
+import java.time.LocalDate;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import org.example.timesheet.AbstractTest;
-import org.example.timesheet.config.InputConfig;
-import org.example.timesheet.config.RunnerConfig;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
 public class RunnerConfigTest extends AbstractTest {
+	
 	@Test
 	public void testMarshal() throws Exception {
 		JAXBContext jaxbCtx = JAXBContext.newInstance(RunnerConfig.class);
@@ -34,7 +33,7 @@ public class RunnerConfigTest extends AbstractTest {
 		runnerConfig.setOutputEncoding("UTF-8");
 		runnerConfig.setOutputPath("/home/timesheet");
 		runnerConfig.setOutputTargets(Lists.newArrayList(RunnerConfig.OutputTarget.values()));
-		runnerConfig.setTargetDate(new Date());
+		runnerConfig.setTargetDate(LocalDate.now());
 		
 		marshaller.marshal(inputConfig, System.out);
 		marshaller.marshal(runnerConfig, System.out);
@@ -46,7 +45,7 @@ public class RunnerConfigTest extends AbstractTest {
 		Unmarshaller unmarshaller = jaxbCtx.createUnmarshaller();
 		
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-		File inputFile = new File(classLoader.getResource("AppConfigTest.xml").getPath());
+		File inputFile = new File(classLoader.getResource("RunnerConfigTest.xml").getPath());
 		RunnerConfig appConfig = (RunnerConfig) unmarshaller.unmarshal(inputFile);
 		System.out.println(appConfig);
 	}

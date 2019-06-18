@@ -1,11 +1,11 @@
 package org.example.timesheet.config;
 
 import java.io.File;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ProcessConfig {
-	private Date month;
+	private LocalDate month;
 	private List<File> inputs;
 	private InputConfig inputConfig;
 	private File csvOutput;
@@ -53,11 +53,11 @@ public class ProcessConfig {
 		this.fillAllMonthDays = fillAllMonthDays;
 	}
 
-	public Date getMonth() {
+	public LocalDate getMonth() {
 		return month;
 	}
 
-	public void setMonth(Date month) {
+	public void setMonth(LocalDate month) {
 		this.month = month;
 	}
 
