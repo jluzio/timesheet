@@ -3,7 +3,7 @@ package org.example.timesheet.config;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class InputConfig {
+public class EntriesConfig {
 	private String encoding;
 	private String serviceExitText;
 	private String dateFormat;
@@ -43,7 +43,7 @@ public class InputConfig {
 
 	@Override
 	public String toString() {
-		return "InputConfig [encoding=" + encoding + ", serviceExitText=" + serviceExitText + ", dateFormat="
+		return "EntriesConfig [encoding=" + encoding + ", serviceExitText=" + serviceExitText + ", dateFormat="
 				+ dateFormat + ", dateTimeFormat=" + dateTimeFormat + "]";
 	}
 

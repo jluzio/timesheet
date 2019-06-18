@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.example.timesheet.ProcessingException;
-import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.EntriesConfig;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
@@ -27,14 +27,14 @@ public class EntryReader {
 		super();
 	}
 
-	public List<Entry> read(Reader reader, InputConfig inputConfig) throws ProcessingException {
+	public List<Entry> read(Reader reader, EntriesConfig entriesConfig) throws ProcessingException {
 		int lineIndex = -1;
 		String line = null;
 		try {
 			List<Entry> entries = new ArrayList<>();
 
-			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(inputConfig.getDateFormat());
-			DateTimeFormatter datetimeFormatter = DateTimeFormatter.ofPattern(inputConfig.getDateTimeFormat());
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(entriesConfig.getDateFormat());
+			DateTimeFormatter datetimeFormatter = DateTimeFormatter.ofPattern(entriesConfig.getDateTimeFormat());
 			Splitter splitter = Splitter.on(CharMatcher.javaIsoControl());
 
 			try (Scanner scanner = new Scanner(reader)) {
@@ -64,7 +64,7 @@ public class EntryReader {
 						break;
 					case "S":
 						fileEntry.setTypeCode(EntryTypeCode.EXIT);
-						if (Objects.equal(descString, inputConfig.getServiceExitText())) {
+						if (Objects.equal(descString, entriesConfig.getServiceExitText())) {
 							fileEntry.setType(EntryType.SERVICE_EXIT);
 						} else if (descString!=null && descString.length() > 0) {
 							fileEntry.setType(EntryType.SERVICE_EXIT);

@@ -10,6 +10,7 @@ import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.example.timesheet.config.ProcessConfig;
 import org.example.timesheet.entries.Entry;
 import org.example.timesheet.entries.EntryType;
 
@@ -19,7 +20,7 @@ import com.google.common.base.Joiner;
 public class EntryDataProcessor {
 	private Logger log = LogManager.getLogger(getClass());
 	
-	public List<DayWorkData> process(List<Entry> entries) {
+	public List<DayWorkData> process(List<Entry> entries, ProcessConfig config) {
 		entries.sort( (m1,m2) -> m1.getDatetime().compareTo(m2.getDatetime()) );
 		Joiner remarksJoiner = Joiner.on(';').skipNulls();
 		Joiner movInfoJoiner = Joiner.on('|').skipNulls();

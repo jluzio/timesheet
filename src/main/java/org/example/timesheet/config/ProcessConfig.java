@@ -2,47 +2,36 @@ package org.example.timesheet.config;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.example.timesheet.config.RunnerConfig.ReportType;
 
 public class ProcessConfig {
 	private LocalDate month;
-	private List<File> inputs;
-	private InputConfig inputConfig;
-	private File csvOutput;
-	private File excelOutput;
-	private String outputEncoding = "UTF-8";
+	private List<File> entriesFiles;
+	private EntriesConfig entriesConfig;
+	private Holidays holidays;
+	private Vacations vacations;
+	private Map<ReportType, File> reportFiles = new HashMap<>();
+	private String reportEncoding = "UTF-8";
 	private boolean fillAllMonthDays = true;
 
-	public List<File> getInputs() {
-		return inputs;
+	public List<File> getEntriesFiles() {
+		return entriesFiles;
 	}
 
-	public void setInputs(List<File> inputs) {
-		this.inputs = inputs;
+	public void setEntriesFiles(List<File> inputs) {
+		this.entriesFiles = inputs;
 	}
 
-	public File getCsvOutput() {
-		return csvOutput;
+	public String getReportEncoding() {
+		return reportEncoding;
 	}
 
-	public void setCsvOutput(File csvOutput) {
-		this.csvOutput = csvOutput;
-	}
-
-	public File getExcelOutput() {
-		return excelOutput;
-	}
-
-	public void setExcelOutput(File excelOutput) {
-		this.excelOutput = excelOutput;
-	}
-
-	public String getOutputEncoding() {
-		return outputEncoding;
-	}
-
-	public void setOutputEncoding(String outputEncoding) {
-		this.outputEncoding = outputEncoding;
+	public void setReportEncoding(String outputEncoding) {
+		this.reportEncoding = outputEncoding;
 	}
 
 	public boolean isFillAllMonthDays() {
@@ -61,12 +50,36 @@ public class ProcessConfig {
 		this.month = month;
 	}
 
-	public InputConfig getInputConfig() {
-		return inputConfig;
+	public EntriesConfig getEntriesConfig() {
+		return entriesConfig;
 	}
 
-	public void setInputConfig(InputConfig inputConfig) {
-		this.inputConfig = inputConfig;
+	public void setEntriesConfig(EntriesConfig entriesConfig) {
+		this.entriesConfig = entriesConfig;
+	}
+
+	public Holidays getHolidays() {
+		return holidays;
+	}
+
+	public void setHolidays(Holidays holidays) {
+		this.holidays = holidays;
+	}
+
+	public Vacations getVacations() {
+		return vacations;
+	}
+
+	public void setVacations(Vacations vacations) {
+		this.vacations = vacations;
+	}
+
+	public Map<ReportType, File> getReportFiles() {
+		return reportFiles;
+	}
+
+	public void setReportFiles(Map<ReportType, File> reportFiles) {
+		this.reportFiles = reportFiles;
 	}
 
 }

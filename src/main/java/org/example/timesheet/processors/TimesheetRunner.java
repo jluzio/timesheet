@@ -14,16 +14,23 @@ import javax.xml.bind.Unmarshaller;
 
 import org.example.timesheet.Application;
 import org.example.timesheet.ProcessingException;
-import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.EntriesConfig;
+import org.example.timesheet.config.Holidays;
 import org.example.timesheet.config.ProcessConfig;
 import org.example.timesheet.config.RunnerConfig;
+import org.example.timesheet.config.RunnerConfig.ReportType;
+import org.example.timesheet.config.Vacations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Named
 public class TimesheetRunner {
 	@Inject 
 	private TimesheetProcessor processor;
+	@Inject 
+	private ObjectMapper objectMapper;
 	
 	public static void main(String[] args) throws Exception {
 		ApplicationContext ctx = SpringApplication.run(Application.class, args);
@@ -46,20 +53,31 @@ public class TimesheetRunner {
 			String outputFormat = "timesheet_%s.%s";
 			String inputFormat = "%s.%s";
 
-			File inputFile = new File(runnerConfig.getInputPath(), String.format(inputFormat, filename, "xls"));
-			File customInputFile = new File(runnerConfig.getInputPath(), String.format(inputFormat, filename + "_custom", "xls"));
-			List<File> inputFiles = customInputFile.exists() 
+			File inputFile = new File(runnerConfig.getEntriesPath(), String.format(inputFormat, filename, "xls"));
+			File customInputFile = new File(runnerConfig.getEntriesPath(), String.format(inputFormat, filename + "_custom", "xls"));
+			List<File> entriesFiles = customInputFile.exists() 
 					? Arrays.asList(inputFile, customInputFile)
 					: Arrays.asList(inputFile);
 
+			File configDataDir = new File(runnerConfig.getConfigDataPath());
+			File vacationsFile = new File(configDataDir, "vacations.json");
+			File holidaysFile = new File(configDataDir, "holidays.json");
+			Vacations vacations = vacationsFile.exists() ? objectMapper.readValue(vacationsFile, Vacations.class) : new Vacations();
+			Holidays holidays = holidaysFile.exists() ? objectMapper.readValue(holidaysFile, Holidays.class) : new Holidays();
+			
 			ProcessConfig processConfig = new ProcessConfig();
-			processConfig.setInputs(inputFiles);
-			processConfig.setInputConfig(runnerConfig.getInputConfig());
-//			processConfig.setCsvOutput(new File(appConfig.getOutputPath(), String.format(outputFormat, filename, "csv")));
-			processConfig.setExcelOutput(new File(runnerConfig.getOutputPath(), String.format(outputFormat, filename, "xls")));
-			processConfig.setOutputEncoding(runnerConfig.getOutputEncoding());
+			processConfig.setEntriesFiles(entriesFiles);
+			processConfig.setEntriesConfig(runnerConfig.getEntriesConfig());
+			processConfig.setVacations(vacations);
+			processConfig.setHolidays(holidays);
+			processConfig.setReportEncoding(runnerConfig.getReportEncoding());
 			processConfig.setFillAllMonthDays(runnerConfig.isFillAllMonthDays());
 			processConfig.setMonth(monthDate);
+			for (ReportType reportType : runnerConfig.getReportTypes()) {
+				String reportExt = getReportExt(reportType);
+				File reportFile = new File(runnerConfig.getReportsPath(), String.format(outputFormat, filename, reportExt));
+				processConfig.getReportFiles().put(reportType, reportFile);
+			}
 			
 			processor.process(processConfig);
 		} catch (ProcessingException e) {
@@ -73,18 +91,29 @@ public class TimesheetRunner {
 		Unmarshaller cfgUnmarshaller = JAXBContext.newInstance(RunnerConfig.class).createUnmarshaller();
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		File defaultRunnerConfigFile = new File(classLoader.getResource("runnerConfig-default.xml").getPath());
-		File defauçtInputConfigFile = new File(classLoader.getResource("inputConfig-default.xml").getPath());
+		File defauçtInputConfigFile = new File(classLoader.getResource("entriesConfig-default.xml").getPath());
 
 		File configFile = new File(appHomePath, "timesheet.xml");
 		if (!configFile.exists()) {
 			configFile = defaultRunnerConfigFile;
 		}
 		RunnerConfig runnerConfig = (RunnerConfig) cfgUnmarshaller.unmarshal(configFile);
-		if (runnerConfig.getInputConfig() == null) {
-			InputConfig inputConfig = (InputConfig) cfgUnmarshaller.unmarshal(defauçtInputConfigFile);
-			runnerConfig.setInputConfig(inputConfig);
+		if (runnerConfig.getEntriesConfig() == null) {
+			EntriesConfig entriesConfig = (EntriesConfig) cfgUnmarshaller.unmarshal(defauçtInputConfigFile);
+			runnerConfig.setEntriesConfig(entriesConfig);
 		}
 		return runnerConfig;
+	}
+	
+	private String getReportExt(ReportType reportType) {
+		switch (reportType) {
+		case CSV:
+			return "csv";
+		case EXCEL:
+			return "xls";
+		default:
+			throw new IllegalArgumentException("Unrecognized reportType: " + reportType);
+		}
 	}
 
 }

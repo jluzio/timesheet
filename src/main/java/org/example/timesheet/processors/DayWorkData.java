@@ -18,6 +18,7 @@ public class DayWorkData {
 	private long breakInMinutes;
 	private String remarks;
 	private boolean dayOff;
+	private boolean holiday;
 	
 	public String getEntriesInfo() {
 		Joiner joiner = Joiner.on('|');
@@ -80,6 +81,14 @@ public class DayWorkData {
 	public void setDayOff(boolean dayOff) {
 		this.dayOff = dayOff;
 	}
+	
+	public boolean isHoliday() {
+		return holiday;
+	}
+
+	public void setHoliday(boolean holiday) {
+		this.holiday = holiday;
+	}
 
 	@Override
 	public String toString() {
@@ -90,6 +99,7 @@ public class DayWorkData {
 				+ ", breakInMinutes=" + breakInMinutes 
 				+ ", remarks=" + remarks 
 				+ ", dayOff=" + dayOff 
+				+ ", holiday=" + holiday 
 				+ ", entries=" + entries 
 				+ "]";
 	}

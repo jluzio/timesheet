@@ -74,10 +74,15 @@ public class ExcelReportWriter {
 		CellStyle normalCellStyle = workbook.createCellStyle();
 		
 		short weekendColor = IndexedColors.AQUA.getIndex();
-		CellStyle weekendDateCellStyle= createWeekendCellStyle(workbook.createCellStyle(), dateCellStyle, weekendColor);
-		CellStyle weekendTimeCellStyle = createWeekendCellStyle(workbook.createCellStyle(), timeCellStyle, weekendColor);
-		CellStyle weekendFloatNumberCellStyle = createWeekendCellStyle(workbook.createCellStyle(), floatNumberCellStyle, weekendColor);
-		CellStyle weekendNormalCellStyle = createWeekendCellStyle(workbook.createCellStyle(), normalCellStyle, weekendColor);
+		short holidayColor = IndexedColors.ORANGE.getIndex();
+		short vacationColor = IndexedColors.YELLOW.getIndex();
+		CellStyle weekendDateCellStyle= createBGColorCellStyle(workbook.createCellStyle(), dateCellStyle, weekendColor);
+		CellStyle weekendTimeCellStyle = createBGColorCellStyle(workbook.createCellStyle(), timeCellStyle, weekendColor);
+		CellStyle weekendFloatNumberCellStyle = createBGColorCellStyle(workbook.createCellStyle(), floatNumberCellStyle, weekendColor);
+		CellStyle weekendNormalCellStyle = createBGColorCellStyle(workbook.createCellStyle(), normalCellStyle, weekendColor);
+		// TODO: holiday and vacation styles
+		CellStyle holidayNormalCellStyle= createBGColorCellStyle(workbook.createCellStyle(), normalCellStyle, holidayColor);
+		CellStyle vacationNormalCellStyle= createBGColorCellStyle(workbook.createCellStyle(), normalCellStyle, vacationColor);
 		
 		String sheetName = null;
 		if (!dayWorkDatas.isEmpty()) {
@@ -97,8 +102,10 @@ public class ExcelReportWriter {
 		createCell(headerRow, SheetCfg.Columns.WORK_HOURS_FORMULA).setCellValue("Work (hf)");
 		
 		Predicate<DayWorkData> isWeekendDay = dayInfo -> dayInfo.getStartDatetime().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
-		Predicate<DayWorkData> isDayOff = dayInfo -> dayInfo.isDayOff();
-		Predicate<DayWorkData> isWorkDay = dayInfo -> isWeekendDay.negate().and(isDayOff.negate()).test(dayInfo);
+		Predicate<DayWorkData> isDayOff = dayWorkData -> dayWorkData.isDayOff();
+		Predicate<DayWorkData> isHoliday = dayWorkData -> dayWorkData.isHoliday();
+		Predicate<DayWorkData> isVacation = dayWorkData -> isHoliday.negate().and(isDayOff).test(dayWorkData);
+		Predicate<DayWorkData> isWorkDay = dayWorkData -> isWeekendDay.negate().and(isDayOff.negate()).test(dayWorkData);
 		Function<LocalDateTime, Date> toDate = dateTime -> dateTime != null ? dateConverter.fromLocalDateTime(dateTime) : null;
 		
 		for (int i = 0; i < dayWorkDatas.size(); i++) {
@@ -106,6 +113,7 @@ public class ExcelReportWriter {
 			Row row = sheet.createRow(i + 1);
 			
 			boolean isWeekend = isWeekendDay.test(dayWorkData);
+			// TODO: holiday and vacation styles
 			CellStyle currentNormalCellStyle = isWeekend ? weekendNormalCellStyle : normalCellStyle;
 			CellStyle currentDateCellStyle = isWeekend ? weekendDateCellStyle : dateCellStyle;
 			CellStyle currentTimeCellStyle = isWeekend ? weekendTimeCellStyle: timeCellStyle;
@@ -227,12 +235,12 @@ public class ExcelReportWriter {
 		return createCell(row, column, null);
 	}
 	
-	private CellStyle createWeekendCellStyle(CellStyle cellStyle, CellStyle fromCellStyle, Short bg) {
+	private CellStyle createBGColorCellStyle(CellStyle cellStyle, CellStyle fromCellStyle, Short bg) {
 		cellStyle.cloneStyleFrom(fromCellStyle);
 		setCellFill(cellStyle, bg);
 		return cellStyle;
 	}
-	
+
 	private void setCellFill(CellStyle cellStyle, Short bg) {
 		if (bg!=null) {
 			cellStyle.setFillForegroundColor(bg);

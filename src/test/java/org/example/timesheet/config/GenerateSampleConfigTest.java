@@ -5,8 +5,13 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
+import org.assertj.core.util.Lists;
 import org.example.timesheet.AbstractTest;
+import org.example.timesheet.config.RunnerConfig.ReportType;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -18,6 +23,23 @@ public class GenerateSampleConfigTest extends AbstractTest {
 	private ObjectMapper objectMapper;
 	
 	@Test
+	public void generateRunnerConfig() throws JAXBException {
+		RunnerConfig runnerConfig = new RunnerConfig();
+		runnerConfig.setConfigDataPath("/home/timesheet/configData");
+		runnerConfig.setEntriesPath("/home/timesheet/entries");
+		runnerConfig.setFillAllMonthDays(true);
+		runnerConfig.setReportEncoding("UTF-8");
+		runnerConfig.setReportsPath("/home/timesheet/reports");
+		runnerConfig.setReportTypes(Lists.newArrayList(ReportType.EXCEL, ReportType.CSV));
+		runnerConfig.setTargetDate(LocalDate.now());
+		
+		File output = new File("target/runnerConfig-test.xml");
+		Marshaller marshaller = JAXBContext.newInstance(RunnerConfig.class).createMarshaller();
+		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marshaller.marshal(runnerConfig, output);
+	}
+	
+	@Test
 	public void generateHolidays() throws JsonGenerationException, JsonMappingException, IOException {
 		Holidays holidays = new Holidays();
 		holidays.getDates().add(LocalDate.now().plusDays(-1));
@@ -26,7 +48,6 @@ public class GenerateSampleConfigTest extends AbstractTest {
 		File output = new File("target/holidays-test.json");
 		objectMapper.writeValue(output, holidays);
 	}
-
 	
 	@Test
 	public void generateVacations() throws JsonGenerationException, JsonMappingException, IOException {

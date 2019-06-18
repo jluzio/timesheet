@@ -12,7 +12,6 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -24,6 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.timesheet.ProcessingException;
 import org.example.timesheet.config.ProcessConfig;
+import org.example.timesheet.config.RunnerConfig.ReportType;
 import org.example.timesheet.entries.Entry;
 import org.example.timesheet.entries.EntryReader;
 import org.example.timesheet.reports.CsvReportWriter;
@@ -37,8 +37,6 @@ public class TimesheetProcessor {
 	@Inject
 	private EntryReader entryReader;
 	@Inject
-	private EntryDataProcessor entryDataProcessor;
-	@Inject
 	private MonthDataProcessor monthDataProcessor;
 	@Inject
 	private CsvReportWriter csvReportWriter;
@@ -50,22 +48,22 @@ public class TimesheetProcessor {
 			List<Entry> entries = readEntries(config);
 			log.debug(entries);
 
-			List<DayWorkData> dayWorkDatas = entryDataProcessor.process(entries);
+			List<DayWorkData> dayWorkDatas = monthDataProcessor.process(entries, config);
 			for (DayWorkData dayWorkData : dayWorkDatas) {
 				log.debug(dayWorkData);
 			}
-			LocalDate month = config.getMonth() != null ? config.getMonth() : null;
-			dayWorkDatas = monthDataProcessor.process(dayWorkDatas, month, config.isFillAllMonthDays());
 
-			Charset outputCharset = Charset.forName(config.getOutputEncoding());
-			if (config.getCsvOutput() != null) {
-				try (Writer writer = new OutputStreamWriter(new FileOutputStream(config.getCsvOutput()),
+			Charset outputCharset = Charset.forName(config.getReportEncoding());
+			File csvReportFile = config.getReportFiles().get(ReportType.CSV);
+			File excelReportFile = config.getReportFiles().get(ReportType.EXCEL);
+			if (csvReportFile != null) {
+				try (Writer writer = new OutputStreamWriter(new FileOutputStream(csvReportFile),
 						outputCharset)) {
 					csvReportWriter.write(dayWorkDatas, writer);
 				}
 			}
-			if (config.getExcelOutput() != null) {
-				try (OutputStream outputStream = new FileOutputStream(config.getExcelOutput())) {
+			if (excelReportFile != null) {
+				try (OutputStream outputStream = new FileOutputStream(excelReportFile)) {
 					excelReportWriter.write(dayWorkDatas, outputStream);
 				}
 			}
@@ -77,9 +75,9 @@ public class TimesheetProcessor {
 	private List<Entry> readEntries(ProcessConfig config)
 			throws UnsupportedEncodingException, FileNotFoundException, IOException {
 		List<Entry> entries = new ArrayList<>();
-		for (File input : config.getInputs()) {
-			Reader inputReader = new InputStreamReader(new FileInputStream(input), config.getInputConfig().getEncoding());
-			List<Entry> currentEntries = entryReader.read(inputReader, config.getInputConfig());
+		for (File input : config.getEntriesFiles()) {
+			Reader inputReader = new InputStreamReader(new FileInputStream(input), config.getEntriesConfig().getEncoding());
+			List<Entry> currentEntries = entryReader.read(inputReader, config.getEntriesConfig());
 			for (Entry currentEntry : currentEntries) {
 				Entry existingEntry = entries.stream().filter(equalsPredicate(currentEntry)).findFirst()
 						.orElse(null);

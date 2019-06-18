@@ -20,22 +20,22 @@ public class RunnerConfigTest extends AbstractTest {
 		Marshaller marshaller = jaxbCtx.createMarshaller();
 		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 		
-		InputConfig inputConfig = new InputConfig();
-		inputConfig.setDateFormat("dd/MM/yyyy");
-		inputConfig.setDateTimeFormat("dd/MM/yyyy HH:mm:ss");
-		inputConfig.setEncoding("UTF-8");
-		inputConfig.setServiceExitText("Service Exit");
+		EntriesConfig entriesConfig = new EntriesConfig();
+		entriesConfig.setDateFormat("dd/MM/yyyy");
+		entriesConfig.setDateTimeFormat("dd/MM/yyyy HH:mm:ss");
+		entriesConfig.setEncoding("UTF-8");
+		entriesConfig.setServiceExitText("Service Exit");
 		
 		RunnerConfig runnerConfig = new RunnerConfig();
 		runnerConfig.setFillAllMonthDays(true);
-		runnerConfig.setInputPath("/home/timesheet");
-		runnerConfig.setInputConfig(inputConfig);
-		runnerConfig.setOutputEncoding("UTF-8");
-		runnerConfig.setOutputPath("/home/timesheet");
-		runnerConfig.setOutputTargets(Lists.newArrayList(RunnerConfig.OutputTarget.values()));
+		runnerConfig.setEntriesPath("/home/timesheet");
+		runnerConfig.setEntriesConfig(entriesConfig);
+		runnerConfig.setReportEncoding("UTF-8");
+		runnerConfig.setReportsPath("/home/timesheet");
+		runnerConfig.setReportTypes(Lists.newArrayList(RunnerConfig.ReportType.values()));
 		runnerConfig.setTargetDate(LocalDate.now());
 		
-		marshaller.marshal(inputConfig, System.out);
+		marshaller.marshal(entriesConfig, System.out);
 		marshaller.marshal(runnerConfig, System.out);
 	}
 

@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 
 import org.example.timesheet.AbstractTest;
-import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.EntriesConfig;
 import org.example.timesheet.config.RunnerConfig;
 import org.junit.Test;
 
@@ -21,23 +21,25 @@ public class TimesheetRunnerTest extends AbstractTest {
 	public void testCurrentFormat() throws Exception {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		File inputFile = new File(classLoader.getResource("201706.xls").getPath());
-		String inputPath = inputFile.getParentFile().getAbsolutePath();
-		String outputPath = inputPath;
+		String entriesPath = inputFile.getParentFile().getAbsolutePath();
+		String outputPath = entriesPath;
 		LocalDate monthDate = LocalDate.of(2017, 06, 1);
+		String configDataPath = new File(classLoader.getResource("configData-test").getPath()).getAbsolutePath();
 		
-		File inputConfigFile = new File(classLoader.getResource("inputConfig-default.xml").getPath());
-		InputConfig inputConfig = (InputConfig) JAXBContext.newInstance(InputConfig.class)
+		File entriesConfigFile = new File(classLoader.getResource("entriesConfig-default.xml").getPath());
+		EntriesConfig entriesConfig = (EntriesConfig) JAXBContext.newInstance(EntriesConfig.class)
 				.createUnmarshaller()
-				.unmarshal(inputConfigFile);
+				.unmarshal(entriesConfigFile);
 		
 		RunnerConfig appConfig = new RunnerConfig();
 		appConfig.setTargetDate(monthDate);
-		appConfig.setInputPath(inputPath);
-		appConfig.setInputConfig(inputConfig);
-		appConfig.setOutputPath(outputPath);
-		appConfig.setOutputEncoding("UTF-8");
+		appConfig.setEntriesPath(entriesPath);
+		appConfig.setEntriesConfig(entriesConfig);
+		appConfig.setConfigDataPath(configDataPath);
+		appConfig.setReportsPath(outputPath);
+		appConfig.setReportEncoding("UTF-8");
 		appConfig.setFillAllMonthDays(true);
-		appConfig.setOutputTargets(Lists.newArrayList(RunnerConfig.OutputTarget.values()));
+		appConfig.setReportTypes(Lists.newArrayList(RunnerConfig.ReportType.values()));
 		
 		runner.run(appConfig);
 	}
@@ -46,23 +48,25 @@ public class TimesheetRunnerTest extends AbstractTest {
 	public void testFormat201706() throws Exception {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		File inputFile = new File(classLoader.getResource("format_201706/201706.xls").getPath());
-		String inputPath = inputFile.getParentFile().getAbsolutePath();
-		String outputPath = inputPath;
+		String entriesPath = inputFile.getParentFile().getAbsolutePath();
+		String outputPath = entriesPath;
 		LocalDate monthDate = LocalDate.of(2017, 6, 1);
-		
-		File inputConfigFile = new File(classLoader.getResource("inputConfig-oldFormat.xml").getPath());
-		InputConfig inputConfig = (InputConfig) JAXBContext.newInstance(InputConfig.class)
+		String configDataPath = new File(classLoader.getResource("configData-test").getPath()).getAbsolutePath();
+
+		File inputConfigFile = new File(classLoader.getResource("entriesConfig-oldFormat.xml").getPath());
+		EntriesConfig entriesConfig = (EntriesConfig) JAXBContext.newInstance(EntriesConfig.class)
 				.createUnmarshaller()
 				.unmarshal(inputConfigFile);
 		
 		RunnerConfig appConfig = new RunnerConfig();
 		appConfig.setTargetDate(monthDate);
-		appConfig.setInputPath(inputPath);
-		appConfig.setInputConfig(inputConfig);
-		appConfig.setOutputPath(outputPath);
-		appConfig.setOutputEncoding("UTF-8");
+		appConfig.setEntriesPath(entriesPath);
+		appConfig.setEntriesConfig(entriesConfig);
+		appConfig.setConfigDataPath(configDataPath);
+		appConfig.setReportsPath(outputPath);
+		appConfig.setReportEncoding("UTF-8");
 		appConfig.setFillAllMonthDays(true);
-		appConfig.setOutputTargets(Lists.newArrayList(RunnerConfig.OutputTarget.values()));
+		appConfig.setReportTypes(Lists.newArrayList(RunnerConfig.ReportType.values()));
 		
 		runner.run(appConfig);
 	}
