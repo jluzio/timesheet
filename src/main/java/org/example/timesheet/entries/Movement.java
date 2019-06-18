@@ -1,4 +1,4 @@
-package org.example.timesheet.model;
+package org.example.timesheet.entries;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,9 +7,6 @@ import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.MoreObjects;
 
-/**
- * Created by jluzio on 24/02/2015.
- */
 public class Movement {
 	private LocalDate date;
 	private LocalDateTime datetime;

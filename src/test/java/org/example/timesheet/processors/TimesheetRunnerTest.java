@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.processors;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -7,6 +7,10 @@ import java.util.Date;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 
+import org.example.timesheet.AbstractTest;
+import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.RunnerConfig;
+import org.example.timesheet.processors.TimesheetRunner;
 import org.example.timesheet.util.DateConverter;
 import org.junit.Test;
 

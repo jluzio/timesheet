@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.processors;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,24 +22,19 @@ import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.timesheet.input.MovementsReader;
-import org.example.timesheet.model.Movement;
-import org.example.timesheet.output.TimesheetCSVWriter;
-import org.example.timesheet.output.TimesheetExcelWriter;
-import org.example.timesheet.processing.DayInfo;
-import org.example.timesheet.processing.MonthProcessor;
-import org.example.timesheet.processing.MovementProcessor;
+import org.example.timesheet.ProcessingException;
+import org.example.timesheet.config.ProcessConfig;
+import org.example.timesheet.entries.Movement;
+import org.example.timesheet.entries.MovementsReader;
+import org.example.timesheet.reports.CsvReportWriter;
+import org.example.timesheet.reports.ExcelReportWriter;
 import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.Predicate;
 
-/**
- * Created by jluzio on 24/02/2015.
- */
 @Named
 public class TimesheetProcessor {
 	private Logger log = LogManager.getLogger(getClass());
-
 	@Inject
 	private MovementsReader movementsReader;
 	@Inject
@@ -47,9 +42,9 @@ public class TimesheetProcessor {
 	@Inject
 	private MonthProcessor monthProcessor;
 	@Inject
-	private TimesheetCSVWriter timesheetCSVWriter;
+	private CsvReportWriter csvReportWriter;
 	@Inject
-	private TimesheetExcelWriter timesheetExcelWriter;
+	private ExcelReportWriter excelReportWriter;
 	@Inject
 	private DateConverter dateConverter;
 
@@ -69,12 +64,12 @@ public class TimesheetProcessor {
 			if (config.getCsvOutput() != null) {
 				try (Writer writer = new OutputStreamWriter(new FileOutputStream(config.getCsvOutput()),
 						outputCharset)) {
-					timesheetCSVWriter.write(dayInfos, writer);
+					csvReportWriter.write(dayInfos, writer);
 				}
 			}
 			if (config.getExcelOutput() != null) {
 				try (OutputStream outputStream = new FileOutputStream(config.getExcelOutput())) {
-					timesheetExcelWriter.write(dayInfos, outputStream);
+					excelReportWriter.write(dayInfos, outputStream);
 				}
 			}
 		} catch (IOException e) {

@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.config;
 
 import java.io.File;
 import java.util.Date;
@@ -7,6 +7,9 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import org.example.timesheet.AbstractTest;
+import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.RunnerConfig;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;

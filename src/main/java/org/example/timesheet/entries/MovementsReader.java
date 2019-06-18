@@ -1,4 +1,4 @@
-package org.example.timesheet.input;
+package org.example.timesheet.entries;
 
 import java.io.Reader;
 import java.time.LocalDate;
@@ -12,19 +12,13 @@ import java.util.Scanner;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.example.timesheet.InputConfig;
 import org.example.timesheet.ProcessingException;
-import org.example.timesheet.model.Movement;
-import org.example.timesheet.model.MovementType;
-import org.example.timesheet.model.MovementTypeCode;
+import org.example.timesheet.config.InputConfig;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 
-/**
- * Created by jluzio on 24/02/2015.
- */
 @Named
 public class MovementsReader {
 	

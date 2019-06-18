@@ -1,11 +1,11 @@
-package org.example.timesheet.processing;
+package org.example.timesheet.processors;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.example.timesheet.model.Movement;
+import org.example.timesheet.entries.Movement;
 import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.Joiner;

@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.processors;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -14,6 +14,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.example.timesheet.Application;
+import org.example.timesheet.ProcessingException;
+import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.ProcessConfig;
+import org.example.timesheet.config.RunnerConfig;
 import org.example.timesheet.util.DateConverter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;

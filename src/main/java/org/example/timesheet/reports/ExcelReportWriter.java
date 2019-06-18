@@ -1,4 +1,4 @@
-package org.example.timesheet.output;
+package org.example.timesheet.reports;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -28,14 +28,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.example.timesheet.TimesheetConstants;
-import org.example.timesheet.processing.DayInfo;
+import org.example.timesheet.processors.DayInfo;
 import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 
 @Named
-public class TimesheetExcelWriter {
+public class ExcelReportWriter {
 	@Inject
 	private DateConverter dateConverter;
 	
@@ -258,9 +258,9 @@ public class TimesheetExcelWriter {
 		return cell;
 	}
 	
-	private void createSeparatorCell(Row row, int column) {
-		createCell(row, column).setCellValue(Strings.repeat("-", 8));		
-	}
+//	private void createSeparatorCell(Row row, int column) {
+//		createCell(row, column).setCellValue(Strings.repeat("-", 8));		
+//	}
 	
 	private String getCellRef(Cell cell) {
 		return getCellValueFn(() -> Optional.ofNullable(cell), c -> new CellReference(c).formatAsString());

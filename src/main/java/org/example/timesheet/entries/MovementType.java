@@ -1,8 +1,5 @@
-package org.example.timesheet.model;
+package org.example.timesheet.entries;
 
-/**
- * Created by jluzio on 24/02/2015.
- */
 public enum MovementType {
     ENTER,
     EXIT,

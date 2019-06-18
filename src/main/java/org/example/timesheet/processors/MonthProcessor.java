@@ -1,4 +1,4 @@
-package org.example.timesheet.processing;
+package org.example.timesheet.processors;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

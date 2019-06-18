@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.config;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

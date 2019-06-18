@@ -1,4 +1,4 @@
-package org.example.timesheet.output;
+package org.example.timesheet.reports;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -7,13 +7,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 
-import org.example.timesheet.processing.DayInfo;
+import org.example.timesheet.processors.DayInfo;
 import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.MoreObjects;
 
 @Named
-public class TimesheetCSVWriter {
+public class CsvReportWriter {
 	
 	public void write(List<DayInfo> dayInfos, Writer writer) throws IOException {
 		String lineFormat = "%s\t%s\t%s\t%s\t%s\t%s\t%s%n";

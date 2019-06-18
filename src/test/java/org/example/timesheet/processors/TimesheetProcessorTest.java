@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.processors;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -11,6 +11,10 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.xml.bind.JAXBContext;
 
+import org.example.timesheet.AbstractTest;
+import org.example.timesheet.config.InputConfig;
+import org.example.timesheet.config.ProcessConfig;
+import org.example.timesheet.processors.TimesheetProcessor;
 import org.junit.Test;
 
 public class TimesheetProcessorTest extends AbstractTest {

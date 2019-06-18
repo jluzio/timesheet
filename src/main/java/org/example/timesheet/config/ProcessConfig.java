@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.config;
 
 import java.io.File;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package org.example.timesheet.processing;
+package org.example.timesheet.processors;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -10,8 +10,8 @@ import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.timesheet.model.Movement;
-import org.example.timesheet.model.MovementType;
+import org.example.timesheet.entries.Movement;
+import org.example.timesheet.entries.MovementType;
 
 import com.google.common.base.Joiner;
 

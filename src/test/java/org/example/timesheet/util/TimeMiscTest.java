@@ -1,4 +1,4 @@
-package org.example.timesheet;
+package org.example.timesheet.util;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
