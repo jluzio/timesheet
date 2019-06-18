@@ -7,11 +7,11 @@ import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.MoreObjects;
 
-public class Movement {
+public class Entry {
 	private LocalDate date;
 	private LocalDateTime datetime;
-	private MovementType type;
-	private MovementTypeCode typeCode;
+	private EntryType type;
+	private EntryTypeCode typeCode;
 	private String remarks;
 
 	public LocalDate getDate() {
@@ -30,11 +30,11 @@ public class Movement {
 		this.datetime = datetime;
 	}
 
-	public MovementType getType() {
+	public EntryType getType() {
 		return type;
 	}
 
-	public void setType(MovementType type) {
+	public void setType(EntryType type) {
 		this.type = type;
 	}
 
@@ -46,11 +46,11 @@ public class Movement {
 		this.remarks = remarks;
 	}
 	
-	public MovementTypeCode getTypeCode() {
+	public EntryTypeCode getTypeCode() {
 		return typeCode;
 	}
 
-	public void setTypeCode(MovementTypeCode typeCode) {
+	public void setTypeCode(EntryTypeCode typeCode) {
 		this.typeCode = typeCode;
 	}
 
@@ -63,7 +63,7 @@ public class Movement {
 	
 	@Override
 	public String toString() {
-		return "Movement ["
+		return "Entry ["
 				+ "date=" + Formatters.format(date, Formatters.DATE_OUTPUT_FORMAT) 
 				+ ", datetime=" + Formatters.format(datetime, Formatters.DATETIME_OUTPUT_FORMAT) 
 				+ ", type=" + type 

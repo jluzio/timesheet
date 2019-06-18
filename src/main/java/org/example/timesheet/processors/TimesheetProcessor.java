@@ -24,8 +24,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.timesheet.ProcessingException;
 import org.example.timesheet.config.ProcessConfig;
-import org.example.timesheet.entries.Movement;
-import org.example.timesheet.entries.MovementsReader;
+import org.example.timesheet.entries.Entry;
+import org.example.timesheet.entries.EntryReader;
 import org.example.timesheet.reports.CsvReportWriter;
 import org.example.timesheet.reports.ExcelReportWriter;
 import org.example.timesheet.util.DateConverter;
@@ -36,9 +36,9 @@ import com.google.common.base.Predicate;
 public class TimesheetProcessor {
 	private Logger log = LogManager.getLogger(getClass());
 	@Inject
-	private MovementsReader movementsReader;
+	private EntryReader entryReader;
 	@Inject
-	private MovementProcessor movementProcessor;
+	private EntryProcessor entryProcessor;
 	@Inject
 	private MonthProcessor monthProcessor;
 	@Inject
@@ -50,10 +50,10 @@ public class TimesheetProcessor {
 
 	public void process(ProcessConfig config) throws ProcessingException {
 		try {
-			List<Movement> movements = readMovements(config);
-			log.debug(movements);
+			List<Entry> entries = readEntries(config);
+			log.debug(entries);
 
-			List<DayInfo> dayInfos = movementProcessor.process(movements);
+			List<DayInfo> dayInfos = entryProcessor.process(entries);
 			for (DayInfo dayInfo : dayInfos) {
 				log.debug(dayInfo);
 			}
@@ -77,31 +77,31 @@ public class TimesheetProcessor {
 		}
 	}
 
-	private List<Movement> readMovements(ProcessConfig config)
+	private List<Entry> readEntries(ProcessConfig config)
 			throws UnsupportedEncodingException, FileNotFoundException, IOException {
-		List<Movement> movements = new ArrayList<>();
+		List<Entry> entries = new ArrayList<>();
 		for (File input : config.getInputs()) {
 			Reader inputReader = new InputStreamReader(new FileInputStream(input), config.getInputConfig().getEncoding());
-			List<Movement> currentMovements = movementsReader.read(inputReader, config.getInputConfig());
-			for (Movement currentMovement : currentMovements) {
-				Movement existingMovement = movements.stream().filter(equalsPredicate(currentMovement)).findFirst()
+			List<Entry> currentEntries = entryReader.read(inputReader, config.getInputConfig());
+			for (Entry currentEntry : currentEntries) {
+				Entry existingEntry = entries.stream().filter(equalsPredicate(currentEntry)).findFirst()
 						.orElse(null);
-				if (existingMovement != null) {
-					log.debug("Merging movements {} and {} ", existingMovement, currentMovement);
-					existingMovement.setType(currentMovement.getType());
-					existingMovement.setRemarks(currentMovement.getRemarks());
+				if (existingEntry != null) {
+					log.debug("Merging entries {} and {} ", existingEntry, currentEntry);
+					existingEntry.setType(currentEntry.getType());
+					existingEntry.setRemarks(currentEntry.getRemarks());
 				} else {
-					movements.add(currentMovement);
+					entries.add(currentEntry);
 				}
 			}
 			inputReader.close();
 		}
-		return movements;
+		return entries;
 	}
 
-	private Predicate<Movement> equalsPredicate(Movement movement) {
-		return m -> Objects.equals(movement.getDatetime(), m.getDatetime())
-				&& Objects.equals(movement.getTypeCode(), m.getTypeCode());
+	private Predicate<Entry> equalsPredicate(Entry entry) {
+		return m -> Objects.equals(entry.getDatetime(), m.getDatetime())
+				&& Objects.equals(entry.getTypeCode(), m.getTypeCode());
 	}
 
 }

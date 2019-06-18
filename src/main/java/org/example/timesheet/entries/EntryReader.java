@@ -20,18 +20,18 @@ import com.google.common.base.Objects;
 import com.google.common.base.Splitter;
 
 @Named
-public class MovementsReader {
+public class EntryReader {
 	
 	@Inject
-	public MovementsReader() {
+	public EntryReader() {
 		super();
 	}
 
-	public List<Movement> read(Reader reader, InputConfig inputConfig) throws ProcessingException {
+	public List<Entry> read(Reader reader, InputConfig inputConfig) throws ProcessingException {
 		int lineIndex = -1;
 		String line = null;
 		try {
-			List<Movement> entries = new ArrayList<>();
+			List<Entry> entries = new ArrayList<>();
 
 			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(inputConfig.getDateFormat());
 			DateTimeFormatter datetimeFormatter = DateTimeFormatter.ofPattern(inputConfig.getDateTimeFormat());
@@ -53,29 +53,29 @@ public class MovementsReader {
 					String entryTypeString = tokens.get(2);
 					String descString = tokens.size() > 3 ? tokens.get(3) : null;
 	
-					Movement fileEntry = new Movement();
+					Entry fileEntry = new Entry();
 					fileEntry.setDate(LocalDate.parse(dateString, dateFormatter));
 					fileEntry.setDatetime(LocalDateTime.parse(dateString + " " + timeString, datetimeFormatter));
 	
 					switch (entryTypeString) {
 					case "E":
-						fileEntry.setType(MovementType.ENTER);
-						fileEntry.setTypeCode(MovementTypeCode.ENTER);
+						fileEntry.setType(EntryType.ENTER);
+						fileEntry.setTypeCode(EntryTypeCode.ENTER);
 						break;
 					case "S":
-						fileEntry.setTypeCode(MovementTypeCode.EXIT);
+						fileEntry.setTypeCode(EntryTypeCode.EXIT);
 						if (Objects.equal(descString, inputConfig.getServiceExitText())) {
-							fileEntry.setType(MovementType.SERVICE_EXIT);
+							fileEntry.setType(EntryType.SERVICE_EXIT);
 						} else if (descString!=null && descString.length() > 0) {
-							fileEntry.setType(MovementType.SERVICE_EXIT);
+							fileEntry.setType(EntryType.SERVICE_EXIT);
 							fileEntry.setRemarks(descString);
 						} else {
-							fileEntry.setType(MovementType.EXIT);
+							fileEntry.setType(EntryType.EXIT);
 						}
 						break;
 					case "C":
-						fileEntry.setTypeCode(MovementTypeCode.CUSTOM);
-						fileEntry.setType(MovementType.valueOf(descString));
+						fileEntry.setTypeCode(EntryTypeCode.CUSTOM);
+						fileEntry.setType(EntryType.valueOf(descString));
 						break;
 	
 					default:

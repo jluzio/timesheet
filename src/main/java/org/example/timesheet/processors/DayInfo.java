@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.example.timesheet.entries.Movement;
+import org.example.timesheet.entries.Entry;
 import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.Joiner;
 
 public class DayInfo {
-	private List<Movement> movements = new ArrayList<>();
+	private List<Entry> entries = new ArrayList<>();
 	private LocalDateTime startDate;
 	private LocalDateTime exitDate;
 	private long workInMinutes;
@@ -19,18 +19,18 @@ public class DayInfo {
 	private String remarks;
 	private boolean dayOff;
 	
-	public String getMovementsInfo() {
+	public String getEntriesInfo() {
 		Joiner joiner = Joiner.on('|');
-		Stream<String> texts = movements.stream().map( (mov) -> mov.getInfo() );
+		Stream<String> texts = entries.stream().map( (mov) -> mov.getInfo() );
 		return joiner.join(texts.iterator());
 	}
 
-	public List<Movement> getMovements() {
-		return movements;
+	public List<Entry> getEntries() {
+		return entries;
 	}
 
-	public void setMovements(List<Movement> movements) {
-		this.movements = movements;
+	public void setEntries(List<Entry> entries) {
+		this.entries = entries;
 	}
 
 	public LocalDateTime getStartDate() {
@@ -90,7 +90,7 @@ public class DayInfo {
 				+ ", breakInMinutes=" + breakInMinutes 
 				+ ", remarks=" + remarks 
 				+ ", dayOff=" + dayOff 
-				+ ", movements=" + movements 
+				+ ", entries=" + entries 
 				+ "]";
 	}
 

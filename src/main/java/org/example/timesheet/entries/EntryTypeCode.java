@@ -1,6 +1,6 @@
 package org.example.timesheet.entries;
 
-public enum MovementTypeCode {
+public enum EntryTypeCode {
     ENTER,
     EXIT,
     CUSTOM;
