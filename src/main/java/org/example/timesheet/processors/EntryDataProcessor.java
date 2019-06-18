@@ -19,75 +19,75 @@ import com.google.common.base.Joiner;
 public class EntryDataProcessor {
 	private Logger log = LogManager.getLogger(getClass());
 	
-	public List<DayInfo> process(List<Entry> entries) {
+	public List<DayWorkData> process(List<Entry> entries) {
 		entries.sort( (m1,m2) -> m1.getDatetime().compareTo(m2.getDatetime()) );
 		Joiner remarksJoiner = Joiner.on(';').skipNulls();
 		Joiner movInfoJoiner = Joiner.on('|').skipNulls();
 
 		LocalDate lastDay = null;
-		DayInfo dayInfo = null;
-		List<DayInfo> dayInfos = new ArrayList<>();
+		DayWorkData dayWorkData = null;
+		List<DayWorkData> dayWorkDatas = new ArrayList<>();
 		for (int i = 0; i < entries.size(); i++) {
 			Entry entry = entries.get(i);
 			
 			// day transition
 			if (lastDay == null || !entry.getDate().equals(lastDay)) {
-				if (dayInfo != null) {
-					dayInfos.add(dayInfo);
+				if (dayWorkData != null) {
+					dayWorkDatas.add(dayWorkData);
 				}
-				dayInfo = new DayInfo();
+				dayWorkData = new DayWorkData();
 			}
 			lastDay = entry.getDate();
 			
 			log.debug("Processing {}", entry);
 			
-			Entry lastEntry = dayInfo.getEntries().isEmpty() ? null : dayInfo.getEntries().get(dayInfo.getEntries().size()-1);
+			Entry lastEntry = dayWorkData.getEntries().isEmpty() ? null : dayWorkData.getEntries().get(dayWorkData.getEntries().size()-1);
 			
-			dayInfo.getEntries().add(entry);
+			dayWorkData.getEntries().add(entry);
 			
 			if (entry.getType() == EntryType.ENTER) {
-				if (dayInfo.getStartDatetime() == null) {
-					dayInfo.setStartDatetime(entry.getDatetime());
+				if (dayWorkData.getStartDatetime() == null) {
+					dayWorkData.setStartDatetime(entry.getDatetime());
 				}
 				else if (lastEntry != null) {
 					if (lastEntry.getType() == EntryType.SERVICE_EXIT) {
 						// ignore entry
 						long currentBreakInMinutes = ChronoUnit.MINUTES.between(lastEntry.getDatetime(), entry.getDatetime());
 						String remarksText = remarksJoiner.join(
-								dayInfo.getRemarks(),
+								dayWorkData.getRemarks(),
 								String.format("%s(%s)", lastEntry.getType(), movInfoJoiner.join(currentBreakInMinutes, lastEntry.getRemarks()))
 							);
-						dayInfo.setRemarks(remarksText);
+						dayWorkData.setRemarks(remarksText);
 					}
 					else if (lastEntry.getType() == EntryType.EXIT) {
 						long currentBreakInMinutes = ChronoUnit.MINUTES.between(lastEntry.getDatetime(), entry.getDatetime());
-						long breakInMinutes = dayInfo.getBreakInMinutes() + currentBreakInMinutes;
-						dayInfo.setBreakInMinutes(breakInMinutes);
+						long breakInMinutes = dayWorkData.getBreakInMinutes() + currentBreakInMinutes;
+						dayWorkData.setBreakInMinutes(breakInMinutes);
 					}
 				}
 			}
 			else if (entry.getType() == EntryType.EXIT) {
-				dayInfo.setExitDatetime(entry.getDatetime());
-				long workInMinutes = ChronoUnit.MINUTES.between(dayInfo.getStartDatetime(), dayInfo.getExitDatetime()) - dayInfo.getBreakInMinutes();
-				dayInfo.setWorkInMinutes(workInMinutes);
+				dayWorkData.setExitDatetime(entry.getDatetime());
+				long workInMinutes = ChronoUnit.MINUTES.between(dayWorkData.getStartDatetime(), dayWorkData.getExitDatetime()) - dayWorkData.getBreakInMinutes();
+				dayWorkData.setWorkInMinutes(workInMinutes);
 			}
 			else if (entry.getType() == EntryType.HOLLIDAY || entry.getType() == EntryType.VACATION) {
 				LocalDateTime startOfDay = entry.getDate().atStartOfDay();
 
-				dayInfo.setDayOff(true);
-				dayInfo.setWorkInMinutes(0);
-				dayInfo.setBreakInMinutes(0);
-				dayInfo.setRemarks(entry.getType().name());
-				dayInfo.setStartDatetime(startOfDay);
-				dayInfo.setExitDatetime(startOfDay);
+				dayWorkData.setDayOff(true);
+				dayWorkData.setWorkInMinutes(0);
+				dayWorkData.setBreakInMinutes(0);
+				dayWorkData.setRemarks(entry.getType().name());
+				dayWorkData.setStartDatetime(startOfDay);
+				dayWorkData.setExitDatetime(startOfDay);
 			}
 			
 			if (i == entries.size() - 1) {
-				dayInfos.add(dayInfo);
+				dayWorkDatas.add(dayWorkData);
 			}
 		}
 		
-		return dayInfos;
+		return dayWorkDatas;
 	}
 
 }

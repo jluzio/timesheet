@@ -53,23 +53,23 @@ public class TimesheetProcessor {
 			List<Entry> entries = readEntries(config);
 			log.debug(entries);
 
-			List<DayInfo> dayInfos = entryDataProcessor.process(entries);
-			for (DayInfo dayInfo : dayInfos) {
-				log.debug(dayInfo);
+			List<DayWorkData> dayWorkDatas = entryDataProcessor.process(entries);
+			for (DayWorkData dayWorkData : dayWorkDatas) {
+				log.debug(dayWorkData);
 			}
 			LocalDate month = config.getMonth() != null ? dateConverter.toLocalDateTime(config.getMonth()).toLocalDate() : null;
-			dayInfos = monthDataProcessor.process(dayInfos, month, config.isFillAllMonthDays());
+			dayWorkDatas = monthDataProcessor.process(dayWorkDatas, month, config.isFillAllMonthDays());
 
 			Charset outputCharset = Charset.forName(config.getOutputEncoding());
 			if (config.getCsvOutput() != null) {
 				try (Writer writer = new OutputStreamWriter(new FileOutputStream(config.getCsvOutput()),
 						outputCharset)) {
-					csvReportWriter.write(dayInfos, writer);
+					csvReportWriter.write(dayWorkDatas, writer);
 				}
 			}
 			if (config.getExcelOutput() != null) {
 				try (OutputStream outputStream = new FileOutputStream(config.getExcelOutput())) {
-					excelReportWriter.write(dayInfos, outputStream);
+					excelReportWriter.write(dayWorkDatas, outputStream);
 				}
 			}
 		} catch (IOException e) {

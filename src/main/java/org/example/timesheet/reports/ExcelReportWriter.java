@@ -28,7 +28,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.example.timesheet.TimesheetConstants;
-import org.example.timesheet.processors.DayInfo;
+import org.example.timesheet.processors.DayWorkData;
 import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.MoreObjects;
@@ -60,7 +60,7 @@ public class ExcelReportWriter {
 	}
 	
 	@SuppressWarnings("unused")
-	public void write(List<DayInfo> dayInfos, OutputStream outputStream) throws IOException {
+	public void write(List<DayWorkData> dayWorkDatas, OutputStream outputStream) throws IOException {
 		Workbook workbook = new HSSFWorkbook();
 
 		DataFormat dataFormat = workbook.createDataFormat();
@@ -80,8 +80,8 @@ public class ExcelReportWriter {
 		CellStyle weekendNormalCellStyle = createWeekendCellStyle(workbook.createCellStyle(), normalCellStyle, weekendColor);
 		
 		String sheetName = null;
-		if (!dayInfos.isEmpty()) {
-			DayInfo firstDayInfo = dayInfos.get(0);
+		if (!dayWorkDatas.isEmpty()) {
+			DayWorkData firstDayInfo = dayWorkDatas.get(0);
 			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
 			sheetName = dateFormatter.format(firstDayInfo.getStartDatetime());
 		}
@@ -96,29 +96,29 @@ public class ExcelReportWriter {
 		createCell(headerRow, SheetCfg.Columns.EXIT).setCellValue("Exit");
 		createCell(headerRow, SheetCfg.Columns.WORK_HOURS_FORMULA).setCellValue("Work (hf)");
 		
-		Predicate<DayInfo> isWeekendDay = dayInfo -> dayInfo.getStartDatetime().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
-		Predicate<DayInfo> isDayOff = dayInfo -> dayInfo.isDayOff();
-		Predicate<DayInfo> isWorkDay = dayInfo -> isWeekendDay.negate().and(isDayOff.negate()).test(dayInfo);
+		Predicate<DayWorkData> isWeekendDay = dayInfo -> dayInfo.getStartDatetime().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
+		Predicate<DayWorkData> isDayOff = dayInfo -> dayInfo.isDayOff();
+		Predicate<DayWorkData> isWorkDay = dayInfo -> isWeekendDay.negate().and(isDayOff.negate()).test(dayInfo);
 		Function<LocalDateTime, Date> toDate = dateTime -> dateTime != null ? dateConverter.fromLocalDateTime(dateTime) : null;
 		
-		for (int i = 0; i < dayInfos.size(); i++) {
-			DayInfo dayInfo = dayInfos.get(i);
+		for (int i = 0; i < dayWorkDatas.size(); i++) {
+			DayWorkData dayWorkData = dayWorkDatas.get(i);
 			Row row = sheet.createRow(i + 1);
 			
-			boolean isWeekend = isWeekendDay.test(dayInfo);
+			boolean isWeekend = isWeekendDay.test(dayWorkData);
 			CellStyle currentNormalCellStyle = isWeekend ? weekendNormalCellStyle : normalCellStyle;
 			CellStyle currentDateCellStyle = isWeekend ? weekendDateCellStyle : dateCellStyle;
 			CellStyle currentTimeCellStyle = isWeekend ? weekendTimeCellStyle: timeCellStyle;
 			CellStyle currentFloatNumberCellStyle = isWeekend ? weekendFloatNumberCellStyle : floatNumberCellStyle;
 			
-			Date date = dateConverter.fromLocalDateTime(dayInfo.getStartDatetime().toLocalDate().atStartOfDay());
+			Date date = dateConverter.fromLocalDateTime(dayWorkData.getStartDatetime().toLocalDate().atStartOfDay());
 			createCell(row, SheetCfg.Columns.DATE, currentDateCellStyle).setCellValue(date);
-			createCell(row, SheetCfg.Columns.WORK_HOURS, currentFloatNumberCellStyle).setCellValue(1f * dayInfo.getWorkInMinutes() / TimeUnit.HOURS.toMinutes(1));
-			createCell(row, SheetCfg.Columns.BREAK, currentNormalCellStyle).setCellValue(dayInfo.getBreakInMinutes());
-			createCell(row, SheetCfg.Columns.REMARKS, currentNormalCellStyle).setCellValue(MoreObjects.firstNonNull(dayInfo.getRemarks(), ""));
-			createCell(row, SheetCfg.Columns.ENTER, currentTimeCellStyle).setCellValue(toDate.apply(dayInfo.getStartDatetime()));
+			createCell(row, SheetCfg.Columns.WORK_HOURS, currentFloatNumberCellStyle).setCellValue(1f * dayWorkData.getWorkInMinutes() / TimeUnit.HOURS.toMinutes(1));
+			createCell(row, SheetCfg.Columns.BREAK, currentNormalCellStyle).setCellValue(dayWorkData.getBreakInMinutes());
+			createCell(row, SheetCfg.Columns.REMARKS, currentNormalCellStyle).setCellValue(MoreObjects.firstNonNull(dayWorkData.getRemarks(), ""));
+			createCell(row, SheetCfg.Columns.ENTER, currentTimeCellStyle).setCellValue(toDate.apply(dayWorkData.getStartDatetime()));
 			Cell exitCell = createCell(row, SheetCfg.Columns.EXIT, currentTimeCellStyle);
-			Optional.ofNullable(dayInfo.getExitDatetime())
+			Optional.ofNullable(dayWorkData.getExitDatetime())
 				.ifPresent(d -> exitCell.setCellValue(toDate.apply(d)));
 			
 			String enterCellRef = getCellRef(row.getCell(SheetCfg.Columns.ENTER, Row.CREATE_NULL_AS_BLANK));
@@ -129,21 +129,21 @@ public class ExcelReportWriter {
 			createCell(row, SheetCfg.Columns.WORK_HOURS_FORMULA, currentFloatNumberCellStyle, Cell.CELL_TYPE_FORMULA).setCellFormula(workHoursFormula);
 		}
 		
-		int footerStartRowIndex = dayInfos.size() + 1 + 2;
+		int footerStartRowIndex = dayWorkDatas.size() + 1 + 2;
 		int workPerHourColIndex = SheetCfg.Columns.WORK_HOURS;
 		int breakPerHourColIndex = SheetCfg.Columns.BREAK;
-		float sumWorkInHours = 1f * dayInfos.stream().mapToLong(DayInfo::getWorkInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
-		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.test(dayInfo) ? 1 : 0));
+		float sumWorkInHours = 1f * dayWorkDatas.stream().mapToLong(DayWorkData::getWorkInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
+		int workDaysInMonth = dayWorkDatas.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.test(dayInfo) ? 1 : 0));
 		float workHoursInMonth = workDaysInMonth * TimesheetConstants.WORK_TIME_HOURS;
 		float missingWorkHours = workHoursInMonth - sumWorkInHours;
 		float expectedbreakHoursInMonth = workDaysInMonth * 1;
-		float totalBreakHoursInMonth = 1f * dayInfos.stream().mapToLong(DayInfo::getBreakInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
+		float totalBreakHoursInMonth = 1f * dayWorkDatas.stream().mapToLong(DayWorkData::getBreakInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
 		float missingBreakHoursInMonth = expectedbreakHoursInMonth - totalBreakHoursInMonth;
 		
 		String firstWorkHoursCellRef = getCellRef(sheet.getRow(1 + 0).getCell(workPerHourColIndex));
-		String lastWorkHoursCellRef = getCellRef(sheet.getRow(1 + dayInfos.size() - 1).getCell(workPerHourColIndex));
+		String lastWorkHoursCellRef = getCellRef(sheet.getRow(1 + dayWorkDatas.size() - 1).getCell(workPerHourColIndex));
 		String firstBreakHoursCellRef = getCellRef(sheet.getRow(1 + 0).getCell(breakPerHourColIndex));
-		String lastBreakHoursCellRef = getCellRef(sheet.getRow(1 + dayInfos.size() - 1).getCell(breakPerHourColIndex));
+		String lastBreakHoursCellRef = getCellRef(sheet.getRow(1 + dayWorkDatas.size() - 1).getCell(breakPerHourColIndex));
 		
 		int currentFooterRow = footerStartRowIndex;
 		

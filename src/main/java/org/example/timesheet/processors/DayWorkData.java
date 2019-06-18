@@ -10,7 +10,7 @@ import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.Joiner;
 
-public class DayInfo {
+public class DayWorkData {
 	private List<Entry> entries = new ArrayList<>();
 	private LocalDateTime startDatetime;
 	private LocalDateTime exitDatetime;
@@ -83,7 +83,7 @@ public class DayInfo {
 
 	@Override
 	public String toString() {
-		return "DayInfo ["
+		return "DayWorkData ["
 				+ "startDatetime=" + Formatters.format(startDatetime, Formatters.DATETIME_OUTPUT_FORMAT) 
 				+ ", exitDatetime=" + Formatters.format(exitDatetime, Formatters.DATETIME_OUTPUT_FORMAT) 
 				+ ", workInMinutes=" + workInMinutes
