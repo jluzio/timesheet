@@ -1,16 +1,17 @@
 package org.example.timesheet.processing;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.timesheet.input.Movement;
-import org.example.timesheet.input.MovementType;
+import org.example.timesheet.model.Movement;
+import org.example.timesheet.model.MovementType;
 
 import com.google.common.base.Joiner;
 
@@ -23,7 +24,7 @@ public class MovementProcessor {
 		Joiner remarksJoiner = Joiner.on(';').skipNulls();
 		Joiner movInfoJoiner = Joiner.on('|').skipNulls();
 
-		Date lastDay = null;
+		LocalDate lastDay = null;
 		DayInfo dayInfo = null;
 		List<DayInfo> dayInfos = new ArrayList<>();
 		for (int i = 0; i < movements.size(); i++) {
@@ -51,7 +52,7 @@ public class MovementProcessor {
 				else if (lastMovement != null) {
 					if (lastMovement.getType() == MovementType.SERVICE_EXIT) {
 						// ignore movement
-						long currentBreakInMinutes = TimeUnit.MILLISECONDS.toMinutes(movement.getDatetime().getTime() - lastMovement.getDatetime().getTime());
+						long currentBreakInMinutes = ChronoUnit.MINUTES.between(lastMovement.getDatetime(), movement.getDatetime());
 						String remarksText = remarksJoiner.join(
 								dayInfo.getRemarks(),
 								String.format("%s(%s)", lastMovement.getType(), movInfoJoiner.join(currentBreakInMinutes, lastMovement.getRemarks()))
@@ -59,7 +60,7 @@ public class MovementProcessor {
 						dayInfo.setRemarks(remarksText);
 					}
 					else if (lastMovement.getType() == MovementType.EXIT) {
-						long currentBreakInMinutes = TimeUnit.MILLISECONDS.toMinutes(movement.getDatetime().getTime() - lastMovement.getDatetime().getTime());
+						long currentBreakInMinutes = ChronoUnit.MINUTES.between(lastMovement.getDatetime(), movement.getDatetime());
 						long breakInMinutes = dayInfo.getBreakInMinutes() + currentBreakInMinutes;
 						dayInfo.setBreakInMinutes(breakInMinutes);
 					}
@@ -67,16 +68,18 @@ public class MovementProcessor {
 			}
 			else if (movement.getType() == MovementType.EXIT) {
 				dayInfo.setExitDate(movement.getDatetime());
-				long workInMinutes = TimeUnit.MILLISECONDS.toMinutes(dayInfo.getExitDate().getTime() - dayInfo.getStartDate().getTime()) - dayInfo.getBreakInMinutes();
+				long workInMinutes = ChronoUnit.MINUTES.between(dayInfo.getStartDate(), dayInfo.getExitDate()) - dayInfo.getBreakInMinutes();
 				dayInfo.setWorkInMinutes(workInMinutes);
 			}
 			else if (movement.getType() == MovementType.HOLLIDAY || movement.getType() == MovementType.VACATION) {
+				LocalDateTime startOfDay = movement.getDate().atStartOfDay();
+
 				dayInfo.setDayOff(true);
 				dayInfo.setWorkInMinutes(0);
 				dayInfo.setBreakInMinutes(0);
 				dayInfo.setRemarks(movement.getType().name());
-				dayInfo.setStartDate(movement.getDate());
-				dayInfo.setExitDate(movement.getDate());
+				dayInfo.setStartDate(startOfDay);
+				dayInfo.setExitDate(startOfDay);
 			}
 			
 			if (i == movements.size() - 1) {

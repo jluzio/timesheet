@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,13 +22,14 @@ import javax.inject.Named;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.example.timesheet.input.Movement;
 import org.example.timesheet.input.MovementsReader;
+import org.example.timesheet.model.Movement;
 import org.example.timesheet.output.TimesheetCSVWriter;
 import org.example.timesheet.output.TimesheetExcelWriter;
 import org.example.timesheet.processing.DayInfo;
 import org.example.timesheet.processing.MonthProcessor;
 import org.example.timesheet.processing.MovementProcessor;
+import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.Predicate;
 
@@ -48,6 +50,8 @@ public class TimesheetProcessor {
 	private TimesheetCSVWriter timesheetCSVWriter;
 	@Inject
 	private TimesheetExcelWriter timesheetExcelWriter;
+	@Inject
+	private DateConverter dateConverter;
 
 	public void process(ProcessConfig config) throws ProcessingException {
 		try {
@@ -58,7 +62,8 @@ public class TimesheetProcessor {
 			for (DayInfo dayInfo : dayInfos) {
 				log.debug(dayInfo);
 			}
-			dayInfos = monthProcessor.process(dayInfos, config.getMonth(), config.isFillAllMonthDays());
+			LocalDate month = config.getMonth() != null ? dateConverter.toLocalDateTime(config.getMonth()).toLocalDate() : null;
+			dayInfos = monthProcessor.process(dayInfos, month, config.isFillAllMonthDays());
 
 			Charset outputCharset = Charset.forName(config.getOutputEncoding());
 			if (config.getCsvOutput() != null) {

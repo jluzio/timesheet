@@ -1,19 +1,19 @@
 package org.example.timesheet.processing;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.example.timesheet.input.Movement;
+import org.example.timesheet.model.Movement;
 import org.example.timesheet.util.Formatters;
 
 import com.google.common.base.Joiner;
 
 public class DayInfo {
 	private List<Movement> movements = new ArrayList<>();
-	private Date startDate;
-	private Date exitDate;
+	private LocalDateTime startDate;
+	private LocalDateTime exitDate;
 	private long workInMinutes;
 	private long breakInMinutes;
 	private String remarks;
@@ -33,19 +33,19 @@ public class DayInfo {
 		this.movements = movements;
 	}
 
-	public Date getStartDate() {
+	public LocalDateTime getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
+	public void setStartDate(LocalDateTime startDate) {
 		this.startDate = startDate;
 	}
 
-	public Date getExitDate() {
+	public LocalDateTime getExitDate() {
 		return exitDate;
 	}
 
-	public void setExitDate(Date exitDate) {
+	public void setExitDate(LocalDateTime exitDate) {
 		this.exitDate = exitDate;
 	}
 

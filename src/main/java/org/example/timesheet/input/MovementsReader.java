@@ -1,12 +1,12 @@
 package org.example.timesheet.input;
 
 import java.io.Reader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Scanner;
 
 import javax.inject.Inject;
@@ -14,6 +14,9 @@ import javax.inject.Named;
 
 import org.example.timesheet.InputConfig;
 import org.example.timesheet.ProcessingException;
+import org.example.timesheet.model.Movement;
+import org.example.timesheet.model.MovementType;
+import org.example.timesheet.model.MovementTypeCode;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Objects;
@@ -36,8 +39,8 @@ public class MovementsReader {
 		try {
 			List<Movement> entries = new ArrayList<>();
 
-			DateFormat dateFormat = new SimpleDateFormat(inputConfig.getDateFormat());
-			DateFormat datetimeFormat = new SimpleDateFormat(inputConfig.getDateTimeFormat());
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(inputConfig.getDateFormat());
+			DateTimeFormatter datetimeFormatter = DateTimeFormatter.ofPattern(inputConfig.getDateTimeFormat());
 			Splitter splitter = Splitter.on(CharMatcher.javaIsoControl());
 
 			try (Scanner scanner = new Scanner(reader)) {
@@ -57,8 +60,8 @@ public class MovementsReader {
 					String descString = tokens.size() > 3 ? tokens.get(3) : null;
 	
 					Movement fileEntry = new Movement();
-					fileEntry.setDate(dateFormat.parse(dateString));
-					fileEntry.setDatetime(datetimeFormat.parse(dateString + " " + timeString));
+					fileEntry.setDate(LocalDate.parse(dateString, dateFormatter));
+					fileEntry.setDatetime(LocalDateTime.parse(dateString + " " + timeString, datetimeFormatter));
 	
 					switch (entryTypeString) {
 					case "E":
@@ -89,7 +92,7 @@ public class MovementsReader {
 				}
 			}
 			return entries;
-		} catch (ParseException e) {
+		} catch (DateTimeParseException e) {
 			throw new ProcessingException(String.format("Error in line[%s]: %s", lineIndex+1, line), e);
 		}
 	}

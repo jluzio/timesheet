@@ -2,14 +2,16 @@ package org.example.timesheet.output;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -30,7 +32,6 @@ import org.example.timesheet.processing.DayInfo;
 import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
 
 @Named
@@ -81,7 +82,7 @@ public class TimesheetExcelWriter {
 		String sheetName = null;
 		if (!dayInfos.isEmpty()) {
 			DayInfo firstDayInfo = dayInfos.get(0);
-			SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM");
+			DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM");
 			sheetName = dateFormatter.format(firstDayInfo.getStartDate());
 		}
 
@@ -95,9 +96,10 @@ public class TimesheetExcelWriter {
 		createCell(headerRow, SheetCfg.Columns.EXIT).setCellValue("Exit");
 		createCell(headerRow, SheetCfg.Columns.WORK_HOURS_FORMULA).setCellValue("Work (hf)");
 		
-		Predicate<DayInfo> isWeekendDay = dayInfo -> dateConverter.toLocalDateTime(dayInfo.getStartDate()).getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
+		Predicate<DayInfo> isWeekendDay = dayInfo -> dayInfo.getStartDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
 		Predicate<DayInfo> isDayOff = dayInfo -> dayInfo.isDayOff();
 		Predicate<DayInfo> isWorkDay = dayInfo -> isWeekendDay.negate().and(isDayOff.negate()).test(dayInfo);
+		Function<LocalDateTime, Date> toDate = dateTime -> dateTime != null ? dateConverter.fromLocalDateTime(dateTime) : null;
 		
 		for (int i = 0; i < dayInfos.size(); i++) {
 			DayInfo dayInfo = dayInfos.get(i);
@@ -109,15 +111,15 @@ public class TimesheetExcelWriter {
 			CellStyle currentTimeCellStyle = isWeekend ? weekendTimeCellStyle: timeCellStyle;
 			CellStyle currentFloatNumberCellStyle = isWeekend ? weekendFloatNumberCellStyle : floatNumberCellStyle;
 			
-			Date date = dateConverter.fromLocalDateTime(dateConverter.toLocalDateTime(dayInfo.getStartDate()).toLocalDate().atStartOfDay());
+			Date date = dateConverter.fromLocalDateTime(dayInfo.getStartDate().toLocalDate().atStartOfDay());
 			createCell(row, SheetCfg.Columns.DATE, currentDateCellStyle).setCellValue(date);
 			createCell(row, SheetCfg.Columns.WORK_HOURS, currentFloatNumberCellStyle).setCellValue(1f * dayInfo.getWorkInMinutes() / TimeUnit.HOURS.toMinutes(1));
 			createCell(row, SheetCfg.Columns.BREAK, currentNormalCellStyle).setCellValue(dayInfo.getBreakInMinutes());
 			createCell(row, SheetCfg.Columns.REMARKS, currentNormalCellStyle).setCellValue(MoreObjects.firstNonNull(dayInfo.getRemarks(), ""));
-			createCell(row, SheetCfg.Columns.ENTER, currentTimeCellStyle).setCellValue(dayInfo.getStartDate());
+			createCell(row, SheetCfg.Columns.ENTER, currentTimeCellStyle).setCellValue(toDate.apply(dayInfo.getStartDate()));
 			Cell exitCell = createCell(row, SheetCfg.Columns.EXIT, currentTimeCellStyle);
 			Optional.ofNullable(dayInfo.getExitDate())
-				.ifPresent(d -> exitCell.setCellValue(d));
+				.ifPresent(d -> exitCell.setCellValue(toDate.apply(d)));
 			
 			String enterCellRef = getCellRef(row.getCell(SheetCfg.Columns.ENTER, Row.CREATE_NULL_AS_BLANK));
 			String exitCellRef = getCellRef(row.getCell(SheetCfg.Columns.EXIT, Row.CREATE_NULL_AS_BLANK));
@@ -131,7 +133,7 @@ public class TimesheetExcelWriter {
 		int workPerHourColIndex = SheetCfg.Columns.WORK_HOURS;
 		int breakPerHourColIndex = SheetCfg.Columns.BREAK;
 		float sumWorkInHours = 1f * dayInfos.stream().mapToLong(DayInfo::getWorkInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
-		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.apply(dayInfo) ? 1 : 0));
+		int workDaysInMonth = dayInfos.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.test(dayInfo) ? 1 : 0));
 		float workHoursInMonth = workDaysInMonth * TimesheetConstants.WORK_TIME_HOURS;
 		float missingWorkHours = workHoursInMonth - sumWorkInHours;
 		float expectedbreakHoursInMonth = workDaysInMonth * 1;

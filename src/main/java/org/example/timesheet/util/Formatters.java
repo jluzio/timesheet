@@ -1,16 +1,15 @@
 package org.example.timesheet.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
 
 public class Formatters {
-	public static DateFormat TIME_OUTPUT_FORMAT = new SimpleDateFormat("HH:mm");
-	public static DateFormat DATE_OUTPUT_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	public static DateFormat DATETIME_OUTPUT_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static DateTimeFormatter TIME_OUTPUT_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+	public static DateTimeFormatter DATE_OUTPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	public static DateTimeFormatter DATETIME_OUTPUT_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	
-	public static String format(Date date, DateFormat format) {
-		return date==null ? null : format.format(date);
+	public static String format(Temporal temporal, DateTimeFormatter formatter) {
+		return temporal==null ? null : formatter.format(temporal);
 	}
 
 }
