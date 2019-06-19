@@ -18,7 +18,7 @@ public class DayWorkData {
 	private long breakInMinutes;
 	private String remarks;
 	private boolean dayOff;
-	private boolean holiday;
+	private boolean absense;
 	
 	public String getEntriesInfo() {
 		Joiner joiner = Joiner.on('|');
@@ -82,12 +82,12 @@ public class DayWorkData {
 		this.dayOff = dayOff;
 	}
 	
-	public boolean isHoliday() {
-		return holiday;
+	public boolean isAbsense() {
+		return absense;
 	}
 
-	public void setHoliday(boolean holiday) {
-		this.holiday = holiday;
+	public void setAbsense(boolean holiday) {
+		this.absense = holiday;
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class DayWorkData {
 				+ ", breakInMinutes=" + breakInMinutes 
 				+ ", remarks=" + remarks 
 				+ ", dayOff=" + dayOff 
-				+ ", holiday=" + holiday 
+				+ ", absense=" + absense 
 				+ ", entries=" + entries 
 				+ "]";
 	}

@@ -9,9 +9,8 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.example.timesheet.config.Holidays;
+import org.example.timesheet.config.ConfigData;
 import org.example.timesheet.config.ProcessConfig;
-import org.example.timesheet.config.Vacations;
 import org.example.timesheet.entries.Entry;
 import org.example.timesheet.util.ConfigDataUtil;
 
@@ -43,16 +42,15 @@ public class MonthDataProcessor {
 			if (dayInfoOptional.isPresent()) {
 				monthDayInfos.add(dayInfoOptional.get());
 			} else if (config.isFillAllMonthDays()) {
-				// TODO: set vacation or holiday ?
 				LocalDateTime datetimeValue = date.atStartOfDay();
-				boolean holiday = isHoliday(findDate, config.getHolidays());
-				boolean vacations = isVacation(findDate, config.getVacations());
+				boolean dayOff = isDayOff(findDate, config.getConfigData());
+				boolean absense = isAbsense(findDate, config.getConfigData());
 				
 				DayWorkData dayWorkData = new DayWorkData();
 				dayWorkData.setStartDatetime(datetimeValue);
 				dayWorkData.setExitDatetime(datetimeValue);
-				dayWorkData.setDayOff(holiday || vacations);
-				dayWorkData.setHoliday(holiday);
+				dayWorkData.setDayOff(dayOff);
+				dayWorkData.setAbsense(absense);
 				monthDayInfos.add(dayWorkData);
 			}
 		}
@@ -60,12 +58,12 @@ public class MonthDataProcessor {
 		return monthDayInfos;
 	}
 	
-	private boolean isHoliday(LocalDate date, Holidays holidays) {
-		return configDataUtil.isHoliday(date, holidays);
+	private boolean isDayOff(LocalDate date, ConfigData configData) {
+		return configDataUtil.getDayOff(date, configData, null).isPresent();
 	}
 
-	private boolean isVacation(LocalDate date, Vacations vacations) {
-		return configDataUtil.isVacation(date, vacations);
+	private boolean isAbsense(LocalDate date, ConfigData configData) {
+		return configDataUtil.getAbsense(date, configData, null).isPresent();
 	}
 
 }

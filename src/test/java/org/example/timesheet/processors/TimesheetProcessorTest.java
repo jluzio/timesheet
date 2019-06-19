@@ -7,23 +7,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.xml.bind.JAXBContext;
 
 import org.example.timesheet.AbstractTest;
+import org.example.timesheet.config.ConfigData;
+import org.example.timesheet.config.ConfigDataReader;
 import org.example.timesheet.config.EntriesConfig;
-import org.example.timesheet.config.Holidays;
+import org.example.timesheet.config.EntriesConfigReader;
 import org.example.timesheet.config.ProcessConfig;
 import org.example.timesheet.config.RunnerConfig.ReportType;
-import org.example.timesheet.config.Vacations;
 import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TimesheetProcessorTest extends AbstractTest {
 	@Inject
 	private TimesheetProcessor processor;
 	@Inject
-	private ObjectMapper objectMapper;
+	private ConfigDataReader configDataReader;
+	@Inject
+	private EntriesConfigReader entriesConfigReader;
 	
 	@SuppressWarnings("unused")
 	@Test
@@ -43,13 +43,10 @@ public class TimesheetProcessorTest extends AbstractTest {
 		outputDirectory.mkdir();
 		
 		File entriesConfigFile = new File(classLoader.getResource("entriesConfig-default.xml").getPath());
-		EntriesConfig entriesConfig = (EntriesConfig) JAXBContext.newInstance(EntriesConfig.class)
-				.createUnmarshaller()
-				.unmarshal(entriesConfigFile);
+		EntriesConfig entriesConfig = entriesConfigReader.read(entriesConfigFile);
 		
 		File configDataDir = new File(classLoader.getResource("configData-test").getPath());
-		Vacations vacations = objectMapper.readValue(new File(configDataDir, "vacations.json"), Vacations.class);
-		Holidays holidays = objectMapper.readValue(new File(configDataDir, "holidays.json"), Holidays.class);
+		ConfigData configData = configDataReader.read(configDataDir);
 		
 		String outputFormat = "timesheet_%s.%s";
 		String inputFormat = "%s.%s";
@@ -57,8 +54,7 @@ public class TimesheetProcessorTest extends AbstractTest {
 		ProcessConfig processConfig = new ProcessConfig();
 		processConfig.setEntriesFiles(entriesFiles);
 		processConfig.setEntriesConfig(entriesConfig);
-		processConfig.setVacations(vacations);
-		processConfig.setHolidays(holidays);
+		processConfig.setConfigData(configData);
 		processConfig.getReportFiles().put(ReportType.CSV, new File(outputDirectory, String.format(outputFormat, filename, "csv")));
 		processConfig.getReportFiles().put(ReportType.EXCEL, new File(outputDirectory, String.format(outputFormat, filename, "xls")));
 		processConfig.setMonth(monthDate);

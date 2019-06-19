@@ -12,8 +12,7 @@ public class ProcessConfig {
 	private LocalDate month;
 	private List<File> entriesFiles;
 	private EntriesConfig entriesConfig;
-	private Holidays holidays;
-	private Vacations vacations;
+	private ConfigData configData;
 	private Map<ReportType, File> reportFiles = new HashMap<>();
 	private String reportEncoding = "UTF-8";
 	private boolean fillAllMonthDays = true;
@@ -58,20 +57,12 @@ public class ProcessConfig {
 		this.entriesConfig = entriesConfig;
 	}
 
-	public Holidays getHolidays() {
-		return holidays;
+	public ConfigData getConfigData() {
+		return configData;
 	}
 
-	public void setHolidays(Holidays holidays) {
-		this.holidays = holidays;
-	}
-
-	public Vacations getVacations() {
-		return vacations;
-	}
-
-	public void setVacations(Vacations vacations) {
-		this.vacations = vacations;
+	public void setConfigData(ConfigData configData) {
+		this.configData = configData;
 	}
 
 	public Map<ReportType, File> getReportFiles() {

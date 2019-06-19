@@ -8,6 +8,7 @@ import javax.xml.bind.JAXBContext;
 
 import org.example.timesheet.AbstractTest;
 import org.example.timesheet.config.EntriesConfig;
+import org.example.timesheet.config.EntriesConfigReader;
 import org.example.timesheet.config.RunnerConfig;
 import org.junit.Test;
 
@@ -16,6 +17,8 @@ import com.google.common.collect.Lists;
 public class TimesheetRunnerTest extends AbstractTest {
 	@Inject
 	private TimesheetRunner runner;
+	@Inject
+	private EntriesConfigReader entriesConfigReader;
 	
 	@Test
 	public void testCurrentFormat() throws Exception {
@@ -27,9 +30,7 @@ public class TimesheetRunnerTest extends AbstractTest {
 		String configDataPath = new File(classLoader.getResource("configData-test").getPath()).getAbsolutePath();
 		
 		File entriesConfigFile = new File(classLoader.getResource("entriesConfig-default.xml").getPath());
-		EntriesConfig entriesConfig = (EntriesConfig) JAXBContext.newInstance(EntriesConfig.class)
-				.createUnmarshaller()
-				.unmarshal(entriesConfigFile);
+		EntriesConfig entriesConfig = entriesConfigReader.read(entriesConfigFile);
 		
 		RunnerConfig appConfig = new RunnerConfig();
 		appConfig.setTargetDate(monthDate);

@@ -14,23 +14,24 @@ import javax.xml.bind.Unmarshaller;
 
 import org.example.timesheet.Application;
 import org.example.timesheet.ProcessingException;
+import org.example.timesheet.config.ConfigData;
+import org.example.timesheet.config.ConfigDataReader;
 import org.example.timesheet.config.EntriesConfig;
-import org.example.timesheet.config.Holidays;
+import org.example.timesheet.config.EntriesConfigReader;
 import org.example.timesheet.config.ProcessConfig;
 import org.example.timesheet.config.RunnerConfig;
 import org.example.timesheet.config.RunnerConfig.ReportType;
-import org.example.timesheet.config.Vacations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Named
 public class TimesheetRunner {
 	@Inject 
 	private TimesheetProcessor processor;
-	@Inject 
-	private ObjectMapper objectMapper;
+	@Inject
+	private ConfigDataReader configDataReader;
+	@Inject
+	private EntriesConfigReader entriesConfigReader;
 	
 	public static void main(String[] args) throws Exception {
 		ApplicationContext ctx = SpringApplication.run(Application.class, args);
@@ -60,16 +61,12 @@ public class TimesheetRunner {
 					: Arrays.asList(inputFile);
 
 			File configDataDir = new File(runnerConfig.getConfigDataPath());
-			File vacationsFile = new File(configDataDir, "vacations.json");
-			File holidaysFile = new File(configDataDir, "holidays.json");
-			Vacations vacations = vacationsFile.exists() ? objectMapper.readValue(vacationsFile, Vacations.class) : new Vacations();
-			Holidays holidays = holidaysFile.exists() ? objectMapper.readValue(holidaysFile, Holidays.class) : new Holidays();
+			ConfigData configData = configDataReader.read(configDataDir);
 			
 			ProcessConfig processConfig = new ProcessConfig();
 			processConfig.setEntriesFiles(entriesFiles);
 			processConfig.setEntriesConfig(runnerConfig.getEntriesConfig());
-			processConfig.setVacations(vacations);
-			processConfig.setHolidays(holidays);
+			processConfig.setConfigData(configData);
 			processConfig.setReportEncoding(runnerConfig.getReportEncoding());
 			processConfig.setFillAllMonthDays(runnerConfig.isFillAllMonthDays());
 			processConfig.setMonth(monthDate);
@@ -91,7 +88,7 @@ public class TimesheetRunner {
 		Unmarshaller cfgUnmarshaller = JAXBContext.newInstance(RunnerConfig.class).createUnmarshaller();
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		File defaultRunnerConfigFile = new File(classLoader.getResource("runnerConfig-default.xml").getPath());
-		File defauçtInputConfigFile = new File(classLoader.getResource("entriesConfig-default.xml").getPath());
+		File defaultEntriesConfigFile = new File(classLoader.getResource("entriesConfig-default.xml").getPath());
 
 		File configFile = new File(appHomePath, "timesheet.xml");
 		if (!configFile.exists()) {
@@ -99,7 +96,7 @@ public class TimesheetRunner {
 		}
 		RunnerConfig runnerConfig = (RunnerConfig) cfgUnmarshaller.unmarshal(configFile);
 		if (runnerConfig.getEntriesConfig() == null) {
-			EntriesConfig entriesConfig = (EntriesConfig) cfgUnmarshaller.unmarshal(defauçtInputConfigFile);
+			EntriesConfig entriesConfig = entriesConfigReader.read(defaultEntriesConfigFile);
 			runnerConfig.setEntriesConfig(entriesConfig);
 		}
 		return runnerConfig;

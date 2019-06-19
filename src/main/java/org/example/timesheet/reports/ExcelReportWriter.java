@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -29,10 +30,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.example.timesheet.TimesheetConstants;
 import org.example.timesheet.processors.DayWorkData;
+import org.example.timesheet.reports.ExcelReportWriter.SheetCfg.CellDataType;
+import org.example.timesheet.reports.ExcelReportWriter.SheetCfg.DataGroupType;
 import org.example.timesheet.util.DateConverter;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
 
 @Named
 public class ExcelReportWriter {
@@ -52,6 +56,19 @@ public class ExcelReportWriter {
 			public static final int EXIT = 5;
 			public static final int WORK_HOURS_FORMULA = 6;
 		}
+		enum CellDataType {
+			NORMAL,
+			DATE, 
+			TIME,
+			FLOAT_NUMBER;
+		}
+		enum DataGroupType {
+			DEFAULT,
+			WORKDAY,
+			WEEKEND,
+			ABSENSE, 
+			DAY_OFF;
+		}
 	}
 	interface Formulas {
 		Function<String, String> DATE_HOURS_FN = str -> String.format("HOUR(%1$s)+MINUTE(%1$s)/%2$s+SECOND(%1$s)/%3$s", str, TimeUnit.HOURS.toMinutes(1), TimeUnit.HOURS.toSeconds(1));
@@ -63,26 +80,7 @@ public class ExcelReportWriter {
 	public void write(List<DayWorkData> dayWorkDatas, OutputStream outputStream) throws IOException {
 		Workbook workbook = new HSSFWorkbook();
 
-		DataFormat dataFormat = workbook.createDataFormat();
-		
-		CellStyle dateCellStyle = workbook.createCellStyle();
-		dateCellStyle.setDataFormat(dataFormat.getFormat("dd"));
-		CellStyle timeCellStyle = workbook.createCellStyle();
-		timeCellStyle.setDataFormat(dataFormat.getFormat("HH:mm"));
-		CellStyle floatNumberCellStyle = workbook.createCellStyle();
-		floatNumberCellStyle.setDataFormat(dataFormat.getFormat("0.00"));
-		CellStyle normalCellStyle = workbook.createCellStyle();
-		
-		short weekendColor = IndexedColors.AQUA.getIndex();
-		short holidayColor = IndexedColors.ORANGE.getIndex();
-		short vacationColor = IndexedColors.YELLOW.getIndex();
-		CellStyle weekendDateCellStyle= createBGColorCellStyle(workbook.createCellStyle(), dateCellStyle, weekendColor);
-		CellStyle weekendTimeCellStyle = createBGColorCellStyle(workbook.createCellStyle(), timeCellStyle, weekendColor);
-		CellStyle weekendFloatNumberCellStyle = createBGColorCellStyle(workbook.createCellStyle(), floatNumberCellStyle, weekendColor);
-		CellStyle weekendNormalCellStyle = createBGColorCellStyle(workbook.createCellStyle(), normalCellStyle, weekendColor);
-		// TODO: holiday and vacation styles
-		CellStyle holidayNormalCellStyle= createBGColorCellStyle(workbook.createCellStyle(), normalCellStyle, holidayColor);
-		CellStyle vacationNormalCellStyle= createBGColorCellStyle(workbook.createCellStyle(), normalCellStyle, vacationColor);
+		Map<String, CellStyle> stylesMap = createCellStylesMap(workbook);
 		
 		String sheetName = null;
 		if (!dayWorkDatas.isEmpty()) {
@@ -102,22 +100,29 @@ public class ExcelReportWriter {
 		createCell(headerRow, SheetCfg.Columns.WORK_HOURS_FORMULA).setCellValue("Work (hf)");
 		
 		Predicate<DayWorkData> isWeekendDay = dayInfo -> dayInfo.getStartDatetime().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
-		Predicate<DayWorkData> isDayOff = dayWorkData -> dayWorkData.isDayOff();
-		Predicate<DayWorkData> isHoliday = dayWorkData -> dayWorkData.isHoliday();
-		Predicate<DayWorkData> isVacation = dayWorkData -> isHoliday.negate().and(isDayOff).test(dayWorkData);
-		Predicate<DayWorkData> isWorkDay = dayWorkData -> isWeekendDay.negate().and(isDayOff.negate()).test(dayWorkData);
+		Predicate<DayWorkData> isDayOff = dayWorkData -> dayWorkData.isDayOff() && !isWeekendDay.test(dayWorkData);
+		Predicate<DayWorkData> isAbsense = dayWorkData -> dayWorkData.isAbsense() && !isWeekendDay.test(dayWorkData);
+		Predicate<DayWorkData> isDayOffOrAbsense = dayWorkData -> isAbsense.or(isDayOff).test(dayWorkData);
+		Predicate<DayWorkData> isWorkDay = dayWorkData -> isWeekendDay.negate().and(isDayOffOrAbsense.negate()).test(dayWorkData);
 		Function<LocalDateTime, Date> toDate = dateTime -> dateTime != null ? dateConverter.fromLocalDateTime(dateTime) : null;
 		
 		for (int i = 0; i < dayWorkDatas.size(); i++) {
 			DayWorkData dayWorkData = dayWorkDatas.get(i);
 			Row row = sheet.createRow(i + 1);
 			
-			boolean isWeekend = isWeekendDay.test(dayWorkData);
-			// TODO: holiday and vacation styles
-			CellStyle currentNormalCellStyle = isWeekend ? weekendNormalCellStyle : normalCellStyle;
-			CellStyle currentDateCellStyle = isWeekend ? weekendDateCellStyle : dateCellStyle;
-			CellStyle currentTimeCellStyle = isWeekend ? weekendTimeCellStyle: timeCellStyle;
-			CellStyle currentFloatNumberCellStyle = isWeekend ? weekendFloatNumberCellStyle : floatNumberCellStyle;
+			DataGroupType dataGroupType = DataGroupType.WORKDAY;
+			if (isWeekendDay.test(dayWorkData)) {
+				dataGroupType = DataGroupType.WEEKEND;
+			} else if (isAbsense.test(dayWorkData)) {
+				dataGroupType = DataGroupType.ABSENSE;
+			} else if (isDayOff.test(dayWorkData)) {
+				dataGroupType = DataGroupType.DAY_OFF;
+			}
+			
+			CellStyle currentNormalCellStyle = stylesMap.get(getCellStyleKey(CellDataType.NORMAL, dataGroupType));
+			CellStyle currentDateCellStyle = stylesMap.get(getCellStyleKey(CellDataType.DATE, dataGroupType));
+			CellStyle currentTimeCellStyle = stylesMap.get(getCellStyleKey(CellDataType.TIME, dataGroupType));
+			CellStyle currentFloatNumberCellStyle = stylesMap.get(getCellStyleKey(CellDataType.FLOAT_NUMBER, dataGroupType));
 			
 			Date date = dateConverter.fromLocalDateTime(dayWorkData.getStartDatetime().toLocalDate().atStartOfDay());
 			createCell(row, SheetCfg.Columns.DATE, currentDateCellStyle).setCellValue(date);
@@ -161,6 +166,8 @@ public class ExcelReportWriter {
 			cell.setCellValue(Strings.repeat("-", 8));
 			return cell;
 		};
+		
+		CellStyle floatNumberCellStyle = stylesMap.get(getCellStyleKey(CellDataType.FLOAT_NUMBER, DataGroupType.DEFAULT));
 		
 		Row footerRow1 = sheet.createRow(currentFooterRow);
 		createCell(footerRow1, workPerHourColIndex-1).setCellValue("DaysM");
@@ -229,6 +236,53 @@ public class ExcelReportWriter {
 		
 		workbook.write(outputStream);
 		workbook.close();
+	}
+	
+	public Map<String, CellStyle> createCellStylesMap(Workbook workbook) {
+		Map<String, CellStyle> stylesMap = Maps.newHashMap();
+		
+		DataFormat dataFormat = workbook.createDataFormat();
+
+		CellStyle normalCellStyle = workbook.createCellStyle();
+		CellStyle dateCellStyle = workbook.createCellStyle();
+		dateCellStyle.setDataFormat(dataFormat.getFormat("dd"));
+		CellStyle timeCellStyle = workbook.createCellStyle();
+		timeCellStyle.setDataFormat(dataFormat.getFormat("HH:mm"));
+		CellStyle floatNumberCellStyle = workbook.createCellStyle();
+		floatNumberCellStyle.setDataFormat(dataFormat.getFormat("0.00"));
+		
+		stylesMap.put(getCellStyleKey(CellDataType.NORMAL, DataGroupType.DEFAULT), normalCellStyle);
+		stylesMap.put(getCellStyleKey(CellDataType.DATE, DataGroupType.DEFAULT), dateCellStyle);
+		stylesMap.put(getCellStyleKey(CellDataType.TIME, DataGroupType.DEFAULT), timeCellStyle);
+		stylesMap.put(getCellStyleKey(CellDataType.FLOAT_NUMBER, DataGroupType.DEFAULT), floatNumberCellStyle);
+
+		Short workdayColor = null;
+		Short weekendColor = IndexedColors.AQUA.getIndex();
+		Short dayOffColor = IndexedColors.LIGHT_GREEN.getIndex();
+		Short absenseColor = IndexedColors.YELLOW.getIndex();
+		
+		createStyleVariant(DataGroupType.WORKDAY, workdayColor, stylesMap, workbook);
+		createStyleVariant(DataGroupType.WEEKEND, weekendColor, stylesMap, workbook);
+		createStyleVariant(DataGroupType.ABSENSE, absenseColor, stylesMap, workbook);
+		createStyleVariant(DataGroupType.DAY_OFF, dayOffColor, stylesMap, workbook);
+		
+		return stylesMap;
+	}
+	
+	private void createStyleVariant(DataGroupType dataGroupType, Short color, Map<String, CellStyle> stylesMap, Workbook workbook) {
+		for (CellDataType cellDataType : CellDataType.values()) {
+			CellStyle defaultCellStyle = stylesMap.get(getCellStyleKey(cellDataType, DataGroupType.DEFAULT));
+			
+			CellStyle variantCellStyle = color != null 
+				? createBGColorCellStyle(workbook.createCellStyle(), defaultCellStyle, color)
+				: defaultCellStyle;
+			String variantKey = getCellStyleKey(cellDataType, dataGroupType);
+			stylesMap.put(variantKey, variantCellStyle);
+		}
+	}
+	
+	private String getCellStyleKey(CellDataType cellDataType, DataGroupType dataGroupType) {
+		return String.format("%s:%s", cellDataType, dataGroupType);
 	}
 	
 	private Cell createCell(Row row, int column) {

@@ -1,21 +1,24 @@
 package org.example.timesheet.config;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Vacation {
+public class Absense implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private LocalDate date;
 	private LocalDate endDate;
+	private AbsenseType type;
 	
-	public Vacation() {
+	public Absense() {
 		super();
 	}
 
-	public Vacation(LocalDate date) {
+	public Absense(LocalDate date) {
 		super();
 		this.date = date;
 	}
 	
-	public Vacation(LocalDate date, LocalDate endDate) {
+	public Absense(LocalDate date, LocalDate endDate) {
 		super();
 		this.date = date;
 		this.endDate = endDate;
@@ -37,9 +40,17 @@ public class Vacation {
 		this.endDate = endDate;
 	}
 
+	public AbsenseType getType() {
+		return type;
+	}
+
+	public void setType(AbsenseType type) {
+		this.type = type;
+	}
+
 	@Override
 	public String toString() {
-		return "Vacation [date=" + date + ", endDate=" + endDate + "]";
+		return "Absense [date=" + date + ", endDate=" + endDate + ", type=" + type + "]";
 	}
 
 }

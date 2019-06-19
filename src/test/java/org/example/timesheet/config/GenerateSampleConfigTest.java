@@ -17,6 +17,8 @@ import org.junit.Test;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 
 public class GenerateSampleConfigTest extends AbstractTest {
 	@Inject
@@ -40,23 +42,25 @@ public class GenerateSampleConfigTest extends AbstractTest {
 	}
 	
 	@Test
-	public void generateHolidays() throws JsonGenerationException, JsonMappingException, IOException {
-		Holidays holidays = new Holidays();
-		holidays.getDates().add(LocalDate.now().plusDays(-1));
-		holidays.getDates().add(LocalDate.now().plusDays(+1));
+	public void generateDaysOff() throws JsonGenerationException, JsonMappingException, IOException {
+		ListMultimap<DayOffType, DayOff> daysOff = ArrayListMultimap.create();
+		daysOff.put(DayOffType.HOLIDAY, new DayOff(LocalDate.of(2017, 6, 13)));
+		daysOff.put(DayOffType.HOLIDAY, new DayOff(LocalDate.of(2017, 6, 15)));
 		
-		File output = new File("target/holidays-test.json");
-		objectMapper.writeValue(output, holidays);
+		File output = new File("target/daysOff-test.json");
+		objectMapper.writeValue(output, daysOff.asMap());
 	}
 	
 	@Test
-	public void generateVacations() throws JsonGenerationException, JsonMappingException, IOException {
-		Vacations vacations = new Vacations();
-		vacations.getVacations().add(new Vacation(LocalDate.now()));
-		vacations.getVacations().add(new Vacation(LocalDate.now().plusDays(7), LocalDate.now().plusDays(14)));
+	public void generateAbsenses() throws JsonGenerationException, JsonMappingException, IOException {
+		ListMultimap<AbsenseType, Absense> absenses = ArrayListMultimap.create();
+		absenses.put(AbsenseType.VACATION, new Absense(LocalDate.of(2017, 6, 14)));
+		absenses.put(AbsenseType.VACATION, new Absense(LocalDate.of(2017, 6, 19), LocalDate.of(2017, 6, 20)));
+		absenses.put(AbsenseType.VACATION, new Absense(LocalDate.of(2017, 6, 22), LocalDate.of(2017, 6, 26)));
+		absenses.put(AbsenseType.OTHER, new Absense(LocalDate.of(2017, 6, 16)));
 		
-		File output = new File("target/vacations-test.json");
-		objectMapper.writeValue(output, vacations);
+		File output = new File("target/absenses-test.json");
+		objectMapper.writeValue(output, absenses.asMap());
 	}
 
 }
