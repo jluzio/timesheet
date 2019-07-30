@@ -20,7 +20,7 @@ public class DayWorkData {
 	private long breakInMinutes;
 	private String remarks;
 	private boolean dayOff;
-	private boolean absense;
+	private boolean absence;
 	
 	public String getEntriesInfo() {
 		Joiner joiner = Joiner.on('|');

@@ -1,6 +1,6 @@
 package org.example.timesheet.config;
 
-public enum AbsenseType {
+public enum AbsenceType {
 	VACATION,
 	UNJUSTIFIED,
 	OTHER;

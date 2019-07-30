@@ -44,13 +44,13 @@ public class MonthDataProcessor {
 			} else if (config.isFillAllMonthDays()) {
 				LocalDateTime datetimeValue = date.atStartOfDay();
 				boolean dayOff = isDayOff(findDate, config.getConfigData());
-				boolean absense = isAbsense(findDate, config.getConfigData());
+				boolean absence = isAbsence(findDate, config.getConfigData());
 				
 				DayWorkData dayWorkData = new DayWorkData();
 				dayWorkData.setStartDatetime(datetimeValue);
 				dayWorkData.setExitDatetime(datetimeValue);
 				dayWorkData.setDayOff(dayOff);
-				dayWorkData.setAbsense(absense);
+				dayWorkData.setAbsence(absence);
 				monthDayInfos.add(dayWorkData);
 			}
 		}
@@ -62,8 +62,8 @@ public class MonthDataProcessor {
 		return configDataUtil.getDayOff(date, configData, null).isPresent();
 	}
 
-	private boolean isAbsense(LocalDate date, ConfigData configData) {
-		return configDataUtil.getAbsense(date, configData, null).isPresent();
+	private boolean isAbsence(LocalDate date, ConfigData configData) {
+		return configDataUtil.getAbsence(date, configData, null).isPresent();
 	}
 
 }

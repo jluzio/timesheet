@@ -5,8 +5,8 @@ import java.util.Optional;
 
 import javax.inject.Named;
 
-import org.example.timesheet.config.Absense;
-import org.example.timesheet.config.AbsenseType;
+import org.example.timesheet.config.Absence;
+import org.example.timesheet.config.AbsenceType;
 import org.example.timesheet.config.ConfigData;
 import org.example.timesheet.config.DayOff;
 import org.example.timesheet.config.DayOffType;
@@ -26,8 +26,8 @@ public class ConfigDataUtil {
 			.findFirst();
 	}
 
-	public Optional<Absense> getAbsense(LocalDate date, ConfigData configData, AbsenseType type) {
-		return configData.getAbsenses().stream()
+	public Optional<Absence> getAbsence(LocalDate date, ConfigData configData, AbsenceType type) {
+		return configData.getAbsences().stream()
 			.filter(v -> type == null || type.equals(v.getType()))
 			.filter(v -> {
 				if (v.getDate().equals(date)) {

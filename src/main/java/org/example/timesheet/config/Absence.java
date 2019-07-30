@@ -6,22 +6,22 @@ import java.time.LocalDate;
 import lombok.Data;
 
 @Data
-public class Absense implements Serializable {
+public class Absence implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private LocalDate date;
 	private LocalDate endDate;
-	private AbsenseType type;
+	private AbsenceType type;
 	
-	public Absense() {
+	public Absence() {
 		super();
 	}
 
-	public Absense(LocalDate date) {
+	public Absence(LocalDate date) {
 		super();
 		this.date = date;
 	}
 	
-	public Absense(LocalDate date, LocalDate endDate) {
+	public Absence(LocalDate date, LocalDate endDate) {
 		super();
 		this.date = date;
 		this.endDate = endDate;

@@ -52,15 +52,15 @@ public class GenerateSampleConfigTest extends AbstractTest {
 	}
 	
 	@Test
-	public void generateAbsenses() throws JsonGenerationException, JsonMappingException, IOException {
-		ListMultimap<AbsenseType, Absense> absenses = ArrayListMultimap.create();
-		absenses.put(AbsenseType.VACATION, new Absense(LocalDate.of(2017, 6, 14)));
-		absenses.put(AbsenseType.VACATION, new Absense(LocalDate.of(2017, 6, 19), LocalDate.of(2017, 6, 20)));
-		absenses.put(AbsenseType.VACATION, new Absense(LocalDate.of(2017, 6, 22), LocalDate.of(2017, 6, 26)));
-		absenses.put(AbsenseType.OTHER, new Absense(LocalDate.of(2017, 6, 16)));
+	public void generateAbsences() throws JsonGenerationException, JsonMappingException, IOException {
+		ListMultimap<AbsenceType, Absence> absences = ArrayListMultimap.create();
+		absences.put(AbsenceType.VACATION, new Absence(LocalDate.of(2017, 6, 14)));
+		absences.put(AbsenceType.VACATION, new Absence(LocalDate.of(2017, 6, 19), LocalDate.of(2017, 6, 20)));
+		absences.put(AbsenceType.VACATION, new Absence(LocalDate.of(2017, 6, 22), LocalDate.of(2017, 6, 26)));
+		absences.put(AbsenceType.OTHER, new Absence(LocalDate.of(2017, 6, 16)));
 		
-		File output = new File("target/absenses-test.json");
-		objectMapper.writeValue(output, absenses.asMap());
+		File output = new File("target/absences-test.json");
+		objectMapper.writeValue(output, absences.asMap());
 	}
 
 }

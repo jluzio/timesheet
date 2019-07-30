@@ -18,10 +18,10 @@ public class ConfigDataReader {
 	private ObjectMapper objectMapper;
 	
 	public ConfigData read(File configDataDir) throws JsonParseException, JsonMappingException, IOException {
-		Map<AbsenseType, List<Absense>> absensesMap = null;
-		File absensesFile = new File(configDataDir, "absenses.json");
-		if (absensesFile.exists()) {
-			absensesMap = objectMapper.readValue(absensesFile, JsonTypeReferences.ABSENSES);
+		Map<AbsenceType, List<Absence>> absencesMap = null;
+		File absencesFile = new File(configDataDir, "absences.json");
+		if (absencesFile.exists()) {
+			absencesMap = objectMapper.readValue(absencesFile, JsonTypeReferences.ABSENCES);
 		}
 
 		File daysOffFile = new File(configDataDir, "daysOff.json");
@@ -31,11 +31,11 @@ public class ConfigDataReader {
 		}
 		
 		ConfigData configData = new ConfigData();
-		if (absensesMap != null) {
-			absensesMap.forEach((type, list) -> {
+		if (absencesMap != null) {
+			absencesMap.forEach((type, list) -> {
 				list.forEach(v -> {
 					v.setType(type);
-					configData.getAbsenses().add(v);
+					configData.getAbsences().add(v);
 				});
 			});
 		}

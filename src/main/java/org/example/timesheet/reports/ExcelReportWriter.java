@@ -101,9 +101,9 @@ public class ExcelReportWriter {
 		
 		Predicate<DayWorkData> isWeekendDay = dayInfo -> dayInfo.getStartDatetime().getDayOfWeek().compareTo(DayOfWeek.SATURDAY) >= 0;
 		Predicate<DayWorkData> isDayOff = dayWorkData -> dayWorkData.isDayOff() && !isWeekendDay.test(dayWorkData);
-		Predicate<DayWorkData> isAbsense = dayWorkData -> dayWorkData.isAbsense() && !isWeekendDay.test(dayWorkData);
-		Predicate<DayWorkData> isDayOffOrAbsense = dayWorkData -> isAbsense.or(isDayOff).test(dayWorkData);
-		Predicate<DayWorkData> isWorkDay = dayWorkData -> isWeekendDay.negate().and(isDayOffOrAbsense.negate()).test(dayWorkData);
+		Predicate<DayWorkData> isAbsence = dayWorkData -> dayWorkData.isAbsence() && !isWeekendDay.test(dayWorkData);
+		Predicate<DayWorkData> isDayOffOrAbsence = dayWorkData -> isAbsence.or(isDayOff).test(dayWorkData);
+		Predicate<DayWorkData> isWorkDay = dayWorkData -> isWeekendDay.negate().and(isDayOffOrAbsence.negate()).test(dayWorkData);
 		Function<LocalDateTime, Date> toDate = dateTime -> dateTime != null ? dateConverter.fromLocalDateTime(dateTime) : null;
 		
 		for (int i = 0; i < dayWorkDatas.size(); i++) {
@@ -113,7 +113,7 @@ public class ExcelReportWriter {
 			DataGroupType dataGroupType = DataGroupType.WORKDAY;
 			if (isWeekendDay.test(dayWorkData)) {
 				dataGroupType = DataGroupType.WEEKEND;
-			} else if (isAbsense.test(dayWorkData)) {
+			} else if (isAbsence.test(dayWorkData)) {
 				dataGroupType = DataGroupType.ABSENSE;
 			} else if (isDayOff.test(dayWorkData)) {
 				dataGroupType = DataGroupType.DAY_OFF;
@@ -259,11 +259,11 @@ public class ExcelReportWriter {
 		Short workdayColor = null;
 		Short weekendColor = IndexedColors.AQUA.getIndex();
 		Short dayOffColor = IndexedColors.LIGHT_GREEN.getIndex();
-		Short absenseColor = IndexedColors.YELLOW.getIndex();
+		Short absenceColor = IndexedColors.YELLOW.getIndex();
 		
 		createStyleVariant(DataGroupType.WORKDAY, workdayColor, stylesMap, workbook);
 		createStyleVariant(DataGroupType.WEEKEND, weekendColor, stylesMap, workbook);
-		createStyleVariant(DataGroupType.ABSENSE, absenseColor, stylesMap, workbook);
+		createStyleVariant(DataGroupType.ABSENSE, absenceColor, stylesMap, workbook);
 		createStyleVariant(DataGroupType.DAY_OFF, dayOffColor, stylesMap, workbook);
 		
 		return stylesMap;
