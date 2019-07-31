@@ -72,7 +72,7 @@ public class EntryDataProcessor {
 				long workInMinutes = ChronoUnit.MINUTES.between(dayWorkData.getStartDatetime(), dayWorkData.getExitDatetime()) - dayWorkData.getBreakInMinutes();
 				dayWorkData.setWorkInMinutes(workInMinutes);
 			}
-			else if (entry.getType() == EntryType.HOLLIDAY || entry.getType() == EntryType.VACATION) {
+			else if (entry.getType() == EntryType.DAY_OFF || entry.getType() == EntryType.ABSENCE) {
 				LocalDateTime startOfDay = entry.getDate().atStartOfDay();
 
 				dayWorkData.setDayOff(true);
