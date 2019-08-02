@@ -66,7 +66,7 @@ public class ExcelReportWriter {
 			DEFAULT,
 			WORKDAY,
 			WEEKEND,
-			ABSENSE, 
+			ABSENCE, 
 			DAY_OFF;
 		}
 	}
@@ -114,7 +114,7 @@ public class ExcelReportWriter {
 			if (isWeekendDay.test(dayWorkData)) {
 				dataGroupType = DataGroupType.WEEKEND;
 			} else if (isAbsence.test(dayWorkData)) {
-				dataGroupType = DataGroupType.ABSENSE;
+				dataGroupType = DataGroupType.ABSENCE;
 			} else if (isDayOff.test(dayWorkData)) {
 				dataGroupType = DataGroupType.DAY_OFF;
 			}
@@ -263,7 +263,7 @@ public class ExcelReportWriter {
 		
 		createStyleVariant(DataGroupType.WORKDAY, workdayColor, stylesMap, workbook);
 		createStyleVariant(DataGroupType.WEEKEND, weekendColor, stylesMap, workbook);
-		createStyleVariant(DataGroupType.ABSENSE, absenceColor, stylesMap, workbook);
+		createStyleVariant(DataGroupType.ABSENCE, absenceColor, stylesMap, workbook);
 		createStyleVariant(DataGroupType.DAY_OFF, dayOffColor, stylesMap, workbook);
 		
 		return stylesMap;
