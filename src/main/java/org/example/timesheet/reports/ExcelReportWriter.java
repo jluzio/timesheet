@@ -149,9 +149,9 @@ public class ExcelReportWriter {
 		int workDaysInMonth = dayWorkDatas.stream().collect(Collectors.summingInt(dayInfo -> isWorkDay.test(dayInfo) ? 1 : 0));
 		float workHoursInMonth = workDaysInMonth * TimesheetConstants.WORK_TIME_HOURS;
 		float missingWorkHours = workHoursInMonth - sumWorkInHours;
-		float expectedbreakHoursInMonth = workDaysInMonth * 1;
+		float expectedBreakHoursInMonth = workDaysInMonth * TimesheetConstants.BREAK_TIME_HOURS;
 		float totalBreakHoursInMonth = 1f * dayWorkDatas.stream().mapToLong(DayWorkData::getBreakInMinutes).sum() / TimeUnit.HOURS.toMinutes(1);
-		float missingBreakHoursInMonth = expectedbreakHoursInMonth - totalBreakHoursInMonth;
+		float missingBreakHoursInMonth = expectedBreakHoursInMonth - totalBreakHoursInMonth;
 		
 		String firstWorkHoursCellRef = getCellRef(sheet.getRow(1 + 0).getCell(workPerHourColIndex));
 		String lastWorkHoursCellRef = getCellRef(sheet.getRow(1 + dayWorkDatas.size() - 1).getCell(workPerHourColIndex));
